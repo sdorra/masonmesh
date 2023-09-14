@@ -1,0 +1,11 @@
+{
+  "name": "@masonmesh/prettier-config",
+  "version": "0.0.0",
+	"description": "Prettier config for MasonMesh",
+	"main": "index.json",
+  "private": true,
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
