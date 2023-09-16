@@ -1,17 +1,19 @@
 {
-  "name": "masonmesh",
-  "private": true,
-  "scripts": {
-    "build": "turbo run build"
-  },
-  "devDependencies": {
-    "eslint": "^8.48.0",
-    "prettier": "^3.0.3",
-    "@masonmesh/tsconfig": "workspace:*",
-    "turbo": "latest"
-  },
-  "engines": {
-    "node": "18.x",
-    "pnpm": "8.x"
-  }
+	"name": "masonmesh",
+	"private": true,
+	"scripts": {
+		"build": "turbo run build"
+	},
+	"devDependencies": {
+		"eslint": "^8.49.0",
+		"prettier": "^3.0.3",
+		"@masonmesh/tsconfig": "workspace:*",
+		"@masonmesh/prettier-config": "workspace:*",
+		"turbo": "latest"
+	},
+	"engines": {
+		"node": "18.x",
+		"pnpm": "8.x"
+	},
+	"prettier": "@masonmesh/prettier-config"
 }

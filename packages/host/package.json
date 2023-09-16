@@ -1,0 +1,21 @@
+{
+	"name": "@masonmesh/host",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"scripts": {
+		"test": "vitest"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"devDependencies": {
+		"@masonmesh/eslint-config": "workspace:*",
+		"@masonmesh/tsconfig": "workspace:*",
+		"typescript": "^5.2.2",
+		"vitest": "^0.34.4"
+	},
+	"eslintConfig": {
+		"extends": "@masonmesh/eslint-config"
+	}
+}

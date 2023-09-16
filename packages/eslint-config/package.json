@@ -2,12 +2,25 @@
 	"name": "@masonmesh/eslint-config",
 	"version": "0.0.0",
 	"private": true,
+	"description": "ESLint config for Mason Mesh",
+	"main": "index.js",
 	"license": "MIT",
-	"devDependencies": {
-		"@vercel/style-guide": "^5.0.0",
-		"eslint-config-turbo": "^1.10.12"
-	},
 	"publishConfig": {
 		"access": "public"
+	},
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^6.7.0",
+		"@typescript-eslint/parser": "^6.7.0",
+		"eslint": "^8.49.0",
+		"eslint-config-prettier": "^9.0.0",
+		"typescript": "^5.2.2"
+	},
+	"peerDependencies": {
+		"@typescript-eslint/eslint-plugin": "^6.7.0",
+		"@typescript-eslint/parser": "^6.7.0",
+		"eslint": "^8.49.0",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-prettier": "^5.0.0",
+		"typescript": "^5.2.2"
 	}
 }
