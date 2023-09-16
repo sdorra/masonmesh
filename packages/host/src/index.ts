@@ -1,9 +1,13 @@
+type Factory = (...args: unknown[]) => unknown;
+
 type Module = {
 	dependencies: string[];
-	fn: (...args: unknown[]) => unknown;
+	fn: Factory;
 };
 
 export default function () {
+	let anonymousModuleId = 0;
+
 	const modules = new Map<string, unknown>();
 	const lazyModules = new Map<string, () => Promise<unknown>>();
 	const queue = new Map<string, Module>();
@@ -63,11 +67,48 @@ export default function () {
 		}
 	}
 
+	// named module with dependencies
 	async function define(
 		name: string,
 		dependencies: string[],
-		fn: (...args: unknown[]) => void,
-	) {
+		factory: Factory,
+	): Promise<void>;
+
+	// anonymous module with dependencies
+	async function define(
+		dependencies: string[],
+		factory: Factory,
+	): Promise<void>;
+
+	// anonymous module without dependencies
+	async function define(factory: Factory): Promise<void>;
+
+	// implementation
+	async function define(
+		first: string | string[] | Factory,
+		second?: string[] | Factory,
+		third?: Factory,
+	): Promise<void> {
+		// check if first argument is name
+		let name: string;
+		let dependencies: string[];
+		let fn: Factory;
+		// handle named module
+		if (typeof first === "string") {
+			name = first;
+			dependencies = second as string[];
+			fn = third as Factory;
+			// handle anonymous module with dependencies
+		} else if (Array.isArray(first)) {
+			name = `anonymous-${anonymousModuleId++}`;
+			dependencies = first as string[];
+			fn = second as Factory;
+		} else {
+			name = `anonymous-${anonymousModuleId++}`;
+			dependencies = [];
+			fn = first;
+		}
+
 		await resolveAndDefineModule(name, { dependencies, fn });
 		await handleQueue();
 	}

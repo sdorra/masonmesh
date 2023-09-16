@@ -17,10 +17,33 @@ describe("module order", () => {
 		expect(run).toBe(true);
 	});
 
+	it("should load and execute an anonymous module without dependencies", async () => {
+		let run = false;
+		await loader.define(() => {
+			run = true;
+		});
+
+		expect(run).toBe(true);
+	});
+
 	it("should execute the dependencies before the module", async () => {
 		const order: string[] = [];
 
 		await loader.define("one", ["two"], () => {
+			order.push("one");
+		});
+
+		await loader.define("two", [], () => {
+			order.push("two");
+		});
+
+		expect(order).toEqual(["two", "one"]);
+	});
+
+	it("should execute anonymous module with dependencies", async () => {
+		const order: string[] = [];
+
+		await loader.define(["two"], () => {
 			order.push("one");
 		});
 
