@@ -2,7 +2,7 @@
 
 import { ExtensionPoint } from "./extensionPoint";
 
-type GetKey<TExtensionPoint> = TExtensionPoint extends ExtensionPoint<
+export type GetKey<TExtensionPoint> = TExtensionPoint extends ExtensionPoint<
 	any,
 	infer TKey,
 	any
@@ -23,11 +23,24 @@ type GetPredicateParams<TExtensionPoint> =
 		? TPredicateParams
 		: never;
 
+export type Binder<TExtensionPoints, TKeys> = {
+	bind: <TKey extends TKeys>(
+		key: TKey,
+		extension: GetExtensionType<Extract<TExtensionPoints, { key: TKey }>>,
+		predicate?: (
+			param: GetPredicateParams<Extract<TExtensionPoints, { key: TKey }>>,
+		) => boolean,
+	) => void;
+};
+
 export function createBinder<
 	TExtensionPointArray extends Array<ExtensionPoint<any, any, any>>,
 	TExtensionPoints extends TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
->(extensions: TExtensionPointArray, plugin?: string) {
+>(
+	extensions: TExtensionPointArray,
+	plugin?: string,
+): Binder<TExtensionPoints, TKeys> {
 	return {
 		bind: <TKey extends TKeys>(
 			key: TKey,
