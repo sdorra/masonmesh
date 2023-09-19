@@ -28,6 +28,19 @@ describe("test plugin registry", () => {
 		expect(foo.extensions()).toEqual([{ extension: 42, plugin: "test" }]);
 	});
 
+	it("should not activate plugin if it is already activated", () => {
+		const registry = createPluginRegistry([]);
+
+		registry.register({
+			name: "test",
+			onActivate: () => {},
+		});
+
+		registry.activate("test");
+
+		expect(() => registry.activate("test")).toThrow();
+	});
+
 	it("should activate only specified plugin", () => {
 		const foo = extensionPoint<number>().single("foo");
 		const registry = createPluginRegistry([foo]);
@@ -97,6 +110,17 @@ describe("test plugin registry", () => {
 		expect(foo.extensions()).toEqual([]);
 	});
 
+	it("should not deactivate plugin if it is not activated", () => {
+		const registry = createPluginRegistry([]);
+
+		registry.register({
+			name: "test",
+			onActivate: () => {},
+		});
+
+		expect(() => registry.deactivate("test")).toThrow();
+	});
+
 	it("should call onDeactivate", () => {
 		const registry = createPluginRegistry([]);
 
@@ -108,7 +132,7 @@ describe("test plugin registry", () => {
 				deactivated = true;
 			},
 		});
-
+		registry.activate("test");
 		registry.deactivate("test");
 
 		expect(deactivated).toBe(true);
@@ -172,6 +196,27 @@ describe("test plugin registry", () => {
 		registry.deactivate();
 
 		expect(foo.extensions()).toEqual([]);
+	});
+
+	it("should throw an error if plugin is not found", () => {
+		const registry = createPluginRegistry([]);
+
+		expect(() => registry.activate("test")).toThrow();
+		expect(() => registry.deactivate("test")).toThrow();
+	});
+
+	it("should throw an error if plugin is already registered", () => {
+		const registry = createPluginRegistry([]);
+
+		registry.register({
+			name: "test",
+		});
+
+		expect(() =>
+			registry.register({
+				name: "test",
+			}),
+		).toThrow();
 	});
 
 	it("should use a binder which only allows valid types", () => {

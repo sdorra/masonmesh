@@ -11,28 +11,43 @@ export type Plugin<TBinder> = {
 	onDeactivate?: () => void;
 };
 
+type RegisteredPlugin<TBinder> = Plugin<TBinder> & { activated: boolean };
+
 export function createPluginRegistry<
 	TExtensionPointArray extends Array<ExtensionPoint<any, any, any>>,
 	TExtensionPoints extends TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
 	TBinder = Binder<TExtensionPoints, TKeys>,
 >(extensionPoints: TExtensionPointArray) {
-	const plugins = Array<Plugin<TBinder>>();
+	const plugins = Array<RegisteredPlugin<TBinder>>();
 
 	return {
-		plugins: () => [...plugins],
+		plugins: () => {
+			return plugins.map((p) => {
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const { activated, ...plugin } = p;
+				return plugin;
+			});
+		},
 
 		register: function (plugin: Plugin<TBinder>) {
-			plugins.push(plugin);
+			if (plugins.find((p) => p.name === plugin.name)) {
+				throw new Error(`Plugin '${plugin.name}' already registered.`);
+			}
+			plugins.push({ ...plugin, activated: false });
 		},
 
 		activate: function (plugin?: string) {
-			function activatePlugin(plugin: Plugin<TBinder>) {
+			function activatePlugin(plugin: RegisteredPlugin<TBinder>) {
+				if (plugin.activated) {
+					throw new Error(`Plugin '${plugin.name}' is already activated.`);
+				}
 				if (plugin.onActivate) {
 					// TODO can we get rid of the any here?
 					const binder: any = createBinder(extensionPoints, plugin.name);
 					plugin.onActivate(binder);
 				}
+				plugin.activated = true;
 			}
 
 			if (plugin) {
@@ -47,12 +62,16 @@ export function createPluginRegistry<
 		},
 
 		deactivate: function (plugin?: string) {
-			function deactivatePlugin(plugin: Plugin<TBinder>) {
+			function deactivatePlugin(plugin: RegisteredPlugin<TBinder>) {
+				if (!plugin.activated) {
+					throw new Error(`Plugin '${plugin.name}' is not activated.`);
+				}
 				if (plugin.onDeactivate) {
 					plugin.onDeactivate();
 				}
 				// remove extensions from the extension points
 				extensionPoints.forEach((ep) => ep.unbindAllFromPlugin(plugin.name));
+				plugin.activated = false;
 			}
 
 			if (plugin) {
