@@ -29,6 +29,7 @@ export type ExtensionPoint<
 > = {
 	key: TKey;
 	bind(extension: Extension<TExtensionType, TPredicateParams>): void;
+	unbindAllFromPlugin(plugin: string): void;
 	extensions: () => Array<Extension<TExtensionType, TPredicateParams>>;
 };
 
@@ -67,10 +68,22 @@ function createExtensionPoint<T, S extends string, P = undefined>(
 		extensions.push(extension);
 	}
 
+	function unbindAllFromPlugin(plugin: string) {
+		extensions
+			.filter((e) => e.plugin === plugin)
+			.forEach((e) => {
+				const index = extensions.indexOf(e);
+				if (index > -1) {
+					extensions.splice(index, 1);
+				}
+			});
+	}
+
 	return {
 		key,
 		bind,
 		extensions: () => [...extensions],
+		unbindAllFromPlugin,
 	};
 }
 

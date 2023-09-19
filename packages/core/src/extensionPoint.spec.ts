@@ -118,4 +118,26 @@ describe("test extension points", () => {
 
 		expect(foo.extensions()).toEqual([{ extension: 42, plugin: "bar" }]);
 	});
+
+	it("should unbind all extensions from plugin", () => {
+		const foo = extensionPoint<number>().multi("foo");
+
+		foo.bind({
+			extension: 42,
+			plugin: "one",
+		});
+		foo.bind({
+			extension: 43,
+			plugin: "two",
+		});
+
+		foo.unbindAllFromPlugin("two");
+
+		expect(foo.extensions()).toEqual([
+			{
+				extension: 42,
+				plugin: "one",
+			},
+		]);
+	});
 });

@@ -23,9 +23,155 @@ describe("test plugin registry", () => {
 			},
 		});
 
-		registry.activate();
+		registry.activate("test");
 
 		expect(foo.extensions()).toEqual([{ extension: 42, plugin: "test" }]);
+	});
+
+	it("should activate only specified plugin", () => {
+		const foo = extensionPoint<number>().single("foo");
+		const registry = createPluginRegistry([foo]);
+
+		registry.register({
+			name: "test",
+			onActivate: (binder) => {
+				binder.bind("foo", 42);
+			},
+		});
+
+		registry.register({
+			name: "test2",
+			onActivate: (binder) => {
+				binder.bind("foo", 43);
+			},
+		});
+
+		registry.activate("test");
+
+		expect(foo.extensions()).toEqual([{ extension: 42, plugin: "test" }]);
+	});
+
+	it("should activate all plugins", () => {
+		const foo = extensionPoint<number>().multi("foo");
+		const registry = createPluginRegistry([foo]);
+
+		registry.register({
+			name: "test",
+			onActivate: (binder) => {
+				binder.bind("foo", 42);
+			},
+		});
+
+		registry.register({
+			name: "test2",
+			onActivate: (binder) => {
+				binder.bind("foo", 43);
+			},
+		});
+
+		registry.activate();
+
+		expect(foo.extensions()).toEqual([
+			{ extension: 42, plugin: "test" },
+			{ extension: 43, plugin: "test2" },
+		]);
+	});
+
+	it("should deactivate plugin", () => {
+		const foo = extensionPoint<number>().single("foo");
+		const registry = createPluginRegistry([foo]);
+
+		registry.register({
+			name: "test",
+			onActivate: (binder) => {
+				binder.bind("foo", 42);
+			},
+		});
+
+		registry.activate("test");
+
+		expect(foo.extensions()).toEqual([{ extension: 42, plugin: "test" }]);
+
+		registry.deactivate("test");
+
+		expect(foo.extensions()).toEqual([]);
+	});
+
+	it("should call onDeactivate", () => {
+		const registry = createPluginRegistry([]);
+
+		let deactivated = false;
+
+		registry.register({
+			name: "test",
+			onDeactivate: () => {
+				deactivated = true;
+			},
+		});
+
+		registry.deactivate("test");
+
+		expect(deactivated).toBe(true);
+	});
+
+	it("should deactivate only specified plugin", () => {
+		const foo = extensionPoint<number>().multi("foo");
+		const registry = createPluginRegistry([foo]);
+
+		registry.register({
+			name: "test",
+			onActivate: (binder) => {
+				binder.bind("foo", 42);
+			},
+		});
+
+		registry.register({
+			name: "test2",
+			onActivate: (binder) => {
+				binder.bind("foo", 43);
+			},
+		});
+
+		registry.activate();
+
+		expect(foo.extensions()).toEqual([
+			{ extension: 42, plugin: "test" },
+			{ extension: 43, plugin: "test2" },
+		]);
+
+		registry.deactivate("test");
+
+		expect(foo.extensions()).toEqual([{ extension: 43, plugin: "test2" }]);
+	});
+
+	it("should deactivate all plugins", () => {
+		const foo = extensionPoint<number>().multi("foo");
+		const registry = createPluginRegistry([foo]);
+
+		registry.register({
+			name: "test",
+			onActivate: (binder) => {
+				binder.bind("foo", 42);
+			},
+		});
+
+		registry.register({
+			name: "test2",
+			onActivate: (binder) => {
+				binder.bind("foo", 43);
+			},
+		});
+
+		registry.activate();
+
+		expect(foo.extensions()).toEqual([
+			{ extension: 42, plugin: "test" },
+			{ extension: 43, plugin: "test2" },
+		]);
+
+		registry.deactivate();
+
+		expect(foo.extensions()).toEqual([]);
 	});
 
 	it("should use a binder which only allows valid types", () => {
@@ -45,7 +191,7 @@ describe("test plugin registry", () => {
 			},
 		});
 
-		registry.activate();
+		registry.activate("test");
 
 		expect(foo.extensions()).toEqual([{ extension: 42, plugin: "test" }]);
 	});
