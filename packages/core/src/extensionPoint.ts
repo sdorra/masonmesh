@@ -1,0 +1,96 @@
+type Predicate<TParams> = (params: TParams) => boolean;
+
+type Extension<TExtensionType, TParams> = {
+	extension: TExtensionType;
+	predicate?: Predicate<TParams>;
+	plugin?: string;
+};
+
+type SingleOptions = {
+	policy: "first" | "last" | "error";
+};
+
+const defaultSingleOptions: SingleOptions = {
+	policy: "error",
+};
+
+type MultiOptions = {
+	limit?: number;
+};
+
+const defaultMultiOptions: MultiOptions = {};
+
+type Options = SingleOptions | MultiOptions;
+
+export type ExtensionPoint<
+	TExtensionType,
+	TKey extends string,
+	TPredicateParams = undefined,
+> = {
+	key: TKey;
+	bind(extension: Extension<TExtensionType, TPredicateParams>): void;
+	extensions: () => Array<Extension<TExtensionType, TPredicateParams>>;
+};
+
+function isSingleOptions(options: Options): options is SingleOptions {
+	return (options as SingleOptions).policy !== undefined;
+}
+
+function createExtensionPoint<T, S extends string, P = undefined>(
+	key: S,
+	options: Options,
+): ExtensionPoint<T, S, P> {
+	const extensions: Array<Extension<T, P>> = [];
+
+	function bind(extension: Extension<T, P>) {
+		if (isSingleOptions(options)) {
+			if (extensions.length > 0) {
+				if (options.policy === "error") {
+					throw new Error(
+						`Extension point '${key}' does not support multiple extensions.`,
+					);
+				} else if (options.policy === "last") {
+					extensions.splice(0, extensions.length);
+				} else if (options.policy === "first") {
+					return;
+				} else {
+					throw new Error(`Unknown policy '${options.policy}'`);
+				}
+			}
+		} else {
+			if (options.limit && extensions.length >= options.limit) {
+				throw new Error(
+					`Extension point '${key}' does not support more than ${options.limit} extensions.`,
+				);
+			}
+		}
+		extensions.push(extension);
+	}
+
+	return {
+		key,
+		bind,
+		extensions: () => [...extensions],
+	};
+}
+
+export function extensionPoint<TExtensionType, TPredicateParams = undefined>() {
+	return {
+		single: <TKey extends string>(
+			key: TKey,
+			options: SingleOptions = defaultSingleOptions,
+		) =>
+			createExtensionPoint<TExtensionType, TKey, TPredicateParams>(
+				key,
+				options,
+			),
+		multi: <TKey extends string>(
+			key: TKey,
+			options: MultiOptions = defaultMultiOptions,
+		) =>
+			createExtensionPoint<TExtensionType, TKey, TPredicateParams>(
+				key,
+				options,
+			),
+	};
+}
