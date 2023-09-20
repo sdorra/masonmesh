@@ -10,15 +10,12 @@ export type GetKey<TExtensionPoint> = TExtensionPoint extends ExtensionPoint<
 	? TKey
 	: never;
 
-type GetExtensionType<TExtensionPoint> = TExtensionPoint extends ExtensionPoint<
-	infer TExtensionType,
-	any,
-	any
->
-	? TExtensionType
-	: never;
+export type GetExtensionType<TExtensionPoint> =
+	TExtensionPoint extends ExtensionPoint<infer TExtensionType, any, any>
+		? TExtensionType
+		: never;
 
-type GetPredicateParams<TExtensionPoint> =
+export type GetPredicateParam<TExtensionPoint> =
 	TExtensionPoint extends ExtensionPoint<any, any, infer TPredicateParams>
 		? TPredicateParams
 		: never;
@@ -26,11 +23,11 @@ type GetPredicateParams<TExtensionPoint> =
 export type Binder<TExtensionPoints, TKeys> = {
 	bind: <
 		TKey extends TKeys,
-		TExtension extends Extract<TExtensionPoints, { key: TKey }>,
+		TExtensionPoint extends Extract<TExtensionPoints, { key: TKey }>,
 	>(
 		key: TKey,
-		extension: GetExtensionType<TExtension>,
-		predicate?: Predicate<GetPredicateParams<TExtension>>,
+		extension: GetExtensionType<TExtensionPoint>,
+		predicate?: Predicate<GetPredicateParam<TExtensionPoint>>,
 	) => void;
 };
 
@@ -39,19 +36,19 @@ export function createBinder<
 	TExtensionPoints extends TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
 >(
-	extensions: TExtensionPointArray,
+	extensionPoints: TExtensionPointArray,
 	plugin?: string,
 ): Binder<TExtensionPoints, TKeys> {
 	return {
 		bind: <
 			TKey extends TKeys,
-			TExtension extends Extract<TExtensionPoints, { key: TKey }>,
+			TExtensionPoint extends Extract<TExtensionPoints, { key: TKey }>,
 		>(
 			key: TKey,
-			extension: GetExtensionType<TExtension>,
-			predicate?: Predicate<GetPredicateParams<TExtension>>,
+			extension: GetExtensionType<TExtensionPoint>,
+			predicate?: Predicate<GetPredicateParam<TExtensionPoint>>,
 		) => {
-			const ep = extensions.find((e) => e.key === key);
+			const ep = extensionPoints.find((e) => e.key === key);
 			if (!ep) {
 				throw new Error(`Extension point '${key}' not found.`);
 			}
