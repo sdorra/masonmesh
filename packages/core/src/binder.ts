@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ExtensionPoint } from "./extensionPoint";
+import { ExtensionPoint, Predicate } from "./extensionPoint";
 
 export type GetKey<TExtensionPoint> = TExtensionPoint extends ExtensionPoint<
 	any,
@@ -24,12 +24,13 @@ type GetPredicateParams<TExtensionPoint> =
 		: never;
 
 export type Binder<TExtensionPoints, TKeys> = {
-	bind: <TKey extends TKeys>(
+	bind: <
+		TKey extends TKeys,
+		TExtension extends Extract<TExtensionPoints, { key: TKey }>,
+	>(
 		key: TKey,
-		extension: GetExtensionType<Extract<TExtensionPoints, { key: TKey }>>,
-		predicate?: (
-			param: GetPredicateParams<Extract<TExtensionPoints, { key: TKey }>>,
-		) => boolean,
+		extension: GetExtensionType<TExtension>,
+		predicate?: Predicate<GetPredicateParams<TExtension>>,
 	) => void;
 };
 
@@ -42,12 +43,13 @@ export function createBinder<
 	plugin?: string,
 ): Binder<TExtensionPoints, TKeys> {
 	return {
-		bind: <TKey extends TKeys>(
+		bind: <
+			TKey extends TKeys,
+			TExtension extends Extract<TExtensionPoints, { key: TKey }>,
+		>(
 			key: TKey,
-			extension: GetExtensionType<Extract<TExtensionPoints, { key: TKey }>>,
-			predicate?: (
-				param: GetPredicateParams<Extract<TExtensionPoints, { key: TKey }>>,
-			) => boolean,
+			extension: GetExtensionType<TExtension>,
+			predicate?: Predicate<GetPredicateParams<TExtension>>,
 		) => {
 			const ep = extensions.find((e) => e.key === key);
 			if (!ep) {

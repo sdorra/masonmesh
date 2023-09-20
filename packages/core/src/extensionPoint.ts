@@ -1,4 +1,4 @@
-type Predicate<TParams> = (params: TParams) => boolean;
+export type Predicate<TParams> = (params: TParams) => boolean;
 
 type Extension<TExtensionType, TParams> = {
 	extension: TExtensionType;
