@@ -3,8 +3,26 @@
 	"version": "0.0.0",
 	"private": true,
 	"license": "MIT",
+	"type": "module",
+	"types": "dist/index.d.cts",
+	"main": "dist/index.cjs",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			},
+			"require": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			}
+		}
+	},
 	"scripts": {
-		"test": "vitest"
+		"build": "tsup ./src/index.ts --format cjs,esm --dts --clean",
+		"test": "vitest run --coverage",
+		"typecheck": "tsc --noEmit",
+		"lint": "eslint ./src --ext .ts"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -12,6 +30,8 @@
 	"devDependencies": {
 		"@masonmesh/eslint-config": "workspace:*",
 		"@masonmesh/tsconfig": "workspace:*",
+		"@vitest/coverage-v8": "^0.34.4",
+		"tsup": "^7.2.0",
 		"typescript": "^5.2.2",
 		"vitest": "^0.34.4"
 	},
