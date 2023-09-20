@@ -6,8 +6,10 @@ type Extension<TExtensionType, TParams> = {
 	plugin?: string;
 };
 
+const policies = ["first", "last", "error"] as const;
+
 type SingleOptions = {
-	policy: "first" | "last" | "error";
+	policy: (typeof policies)[number];
 };
 
 const defaultSingleOptions: SingleOptions = {
@@ -54,8 +56,6 @@ function createExtensionPoint<T, S extends string, P = undefined>(
 					extensions.splice(0, extensions.length);
 				} else if (options.policy === "first") {
 					return;
-				} else {
-					throw new Error(`Unknown policy '${options.policy}'`);
 				}
 			}
 		} else {
@@ -87,16 +87,24 @@ function createExtensionPoint<T, S extends string, P = undefined>(
 	};
 }
 
+function validateSingleOptions(options: SingleOptions) {
+	if (!policies.includes(options.policy)) {
+		throw new Error(`Unknown policy '${options.policy}'`);
+	}
+}
+
 export function extensionPoint<TExtensionType, TPredicateParams = undefined>() {
 	return {
 		single: <TKey extends string>(
 			key: TKey,
 			options: SingleOptions = defaultSingleOptions,
-		) =>
-			createExtensionPoint<TExtensionType, TKey, TPredicateParams>(
+		) => {
+			validateSingleOptions(options);
+			return createExtensionPoint<TExtensionType, TKey, TPredicateParams>(
 				key,
 				options,
-			),
+			);
+		},
 		multi: <TKey extends string>(
 			key: TKey,
 			options: MultiOptions = defaultMultiOptions,

@@ -94,6 +94,13 @@ describe("test extension points", () => {
 		expect(foo.extensions()).toEqual([{ extension: 43 }]);
 	});
 
+	it("should throw an error for an invalid policy", () => {
+		expect(() =>
+			// @ts-expect-error invalid policy
+			extensionPoint<number>().single("foo", { policy: "invalid" }),
+		).toThrow();
+	});
+
 	it("should throw an error if limit is reached", () => {
 		const foo = extensionPoint<number>().multi("foo", { limit: 1 });
 
