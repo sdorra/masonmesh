@@ -11,7 +11,7 @@ type Module = {
 	fn: Factory;
 };
 
-const events = ["define", "loaded"] as const;
+const events = ["define", "loaded", "queued"] as const;
 type Events = (typeof events)[number];
 type Listener = (module: string) => void;
 
@@ -62,6 +62,7 @@ export function createModuleLoader() {
 			defineModule(name, module);
 		} else {
 			queue.set(name, module);
+			fireEvent("queued", name);
 		}
 	}
 

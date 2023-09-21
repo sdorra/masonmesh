@@ -183,4 +183,13 @@ describe("moduleLoader tests", () => {
 
 		expect(listener).not.toHaveBeenCalled();
 	});
+
+	it("should fire loaded event when module is queued", () => {
+		const listener = vi.fn();
+		loader.addListener("queued", listener);
+
+		loader.define("foo", ["bar"], () => {});
+
+		expect(listener).toHaveBeenCalledWith("foo");
+	});
 });
