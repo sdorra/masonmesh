@@ -1,0 +1,75 @@
+import { createModuleLoader } from "./moduleLoader";
+import { loadScript } from "./scripts";
+
+type Options = {
+	modules: string[];
+	loader?: (module: string) => void;
+	moduleNameTransform?: (module: string) => string;
+	staticModules?: Record<string, unknown>;
+	lazyModules?: Record<string, () => Promise<unknown>>;
+};
+
+function toString(items: Iterable<string>) {
+	const array = Array.from(items);
+
+	if (array.length === 1) {
+		return array[0];
+	}
+
+	return array.slice(0, -1).join(", ") + " and " + array.slice(-1);
+}
+
+export function loadModules(options: Options) {
+	const moduleLoader = createModuleLoader();
+	for (const [name, module] of Object.entries(options.staticModules || {})) {
+		moduleLoader.defineStatic(name, module);
+	}
+
+	for (const [name, module] of Object.entries(options.lazyModules || {})) {
+		moduleLoader.defineLazy(name, module);
+	}
+
+	const promise = new Promise<number>((resolve, reject) => {
+		const loaded: string[] = [];
+		const queued = new Map<string, string[]>();
+
+		function check() {
+			const moduleCount = options.modules.length;
+			if (loaded.length === moduleCount) {
+				resolve(moduleCount);
+			} else if (loaded.length + queued.size === moduleCount) {
+				const mods = toString(queued.keys());
+				const deps = new Set<string>();
+				queued.forEach((missingDependencies) => {
+					missingDependencies.forEach((dependency) => deps.add(dependency));
+				});
+				const missing = toString(deps);
+
+				reject(
+					`Failed to load modules ${mods}, because of missing dependencies ${missing}`,
+				);
+			}
+		}
+
+		moduleLoader.addListener("loaded", (mod) => {
+			loaded.push(mod);
+			check();
+		});
+
+		moduleLoader.addListener("queued", (mod, missingDependencies) => {
+			queued.set(mod, missingDependencies);
+			check();
+		});
+	});
+
+	moduleLoader.assign();
+
+	const moduleNameTransform =
+		options.moduleNameTransform || ((module) => module);
+	const loader = options.loader || loadScript;
+	options.modules.map(moduleNameTransform).forEach((mod) => {
+		loader(mod);
+	});
+
+	return promise;
+}

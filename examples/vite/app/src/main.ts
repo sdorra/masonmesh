@@ -1,21 +1,19 @@
 import "./styles.css";
-import { createModuleLoader, loadScript } from "@masonmesh/host";
+import { loadModules } from "@masonmesh/host";
 import { resolver, pluginRegistry } from "./plugins";
 import * as api from "./api";
-
-const moduleLoader = createModuleLoader();
-// TODO how to throw an error if all plugins are loaded
-// but a dependency is still missing?
-moduleLoader.defineStatic("@masonmesh/example-vite", api);
-
-// assign define to window
-moduleLoader.assign();
 
 const plugins: string[] = await fetch("/plugins.json").then((response) =>
 	response.json(),
 );
 
-plugins.map((plugin) => `/plugins/plugin-${plugin}.js`).forEach(loadScript);
+await loadModules({
+	modules: plugins,
+	moduleNameTransform: (module) => `/plugins/plugin-${module}.js`,
+	staticModules: {
+		"@masonmesh/example-vite": api,
+	},
+});
 
 const app = document.querySelector("#app");
 if (!app) {
@@ -36,8 +34,4 @@ function renderPlugins() {
 						.join("")}</ul>`;
 }
 
-pluginRegistry.addListener("activate", (plugin) => {
-	console.log(`Plugin activated: ${plugin.name}`);
-
-	app.innerHTML = renderPlugins() + renderColors();
-});
+app.innerHTML = `${renderColors()}${renderPlugins()}`;
