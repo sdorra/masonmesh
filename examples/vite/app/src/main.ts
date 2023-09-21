@@ -1,7 +1,6 @@
 import "./styles.css";
 // TODO use named export
 import createModuleLoader from "@masonmesh/host";
-import { onPluginActivated } from "./events";
 import { resolver, pluginRegistry } from "./plugins";
 import * as api from "./api";
 
@@ -52,9 +51,13 @@ function renderPlugins() {
 						.join("")}</ul>`;
 }
 
-// TODO we should provide hooks to make this easier
-onPluginActivated((pluginName) => {
-	console.log(`Plugin activated: ${pluginName}`);
+// TODO is this such a common use case that we should provide a option for this?
+pluginRegistry.addListener("register", (plugin) => {
+	pluginRegistry.activate(plugin.name);
+});
+
+pluginRegistry.addListener("activate", (plugin) => {
+	console.log(`Plugin activated: ${plugin.name}`);
 
 	app.innerHTML = renderPlugins() + renderColors();
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { extensionPoint } from "./extensionPoint";
-import { createPluginRegistry } from "./plugin";
+import { AnyPlugin, createPluginRegistry } from "./plugin";
 
 describe("test plugin registry", () => {
 	it("should register plugin", () => {
@@ -239,5 +239,125 @@ describe("test plugin registry", () => {
 		registry.activate("test");
 
 		expect(foo.extensions()).toEqual([{ extension: 42, plugin: "test" }]);
+	});
+
+	it("should fire event if plugin is registered", () => {
+		const pluginRegistry = createPluginRegistry([]);
+		let registeredPlugin = "";
+		pluginRegistry.addListener("register", (plugin) => {
+			registeredPlugin = plugin.name;
+		});
+
+		pluginRegistry.register({
+			name: "test",
+		});
+
+		expect(registeredPlugin).toBe("test");
+	});
+
+	it("should notify multiple listeners", () => {
+		const pluginRegistry = createPluginRegistry([]);
+		let registeredPlugin1 = "";
+		let registeredPlugin2 = "";
+		pluginRegistry.addListener("register", (plugin) => {
+			registeredPlugin1 = plugin.name;
+		});
+		pluginRegistry.addListener("register", (plugin) => {
+			registeredPlugin2 = plugin.name;
+		});
+
+		pluginRegistry.register({
+			name: "test",
+		});
+
+		expect(registeredPlugin1).toBe("test");
+		expect(registeredPlugin2).toBe("test");
+	});
+
+	it("should not notify removed listeners", () => {
+		const pluginRegistry = createPluginRegistry([]);
+		let registeredPlugin1 = "";
+		let registeredPlugin2 = "";
+		const listener1 = (plugin: AnyPlugin) => {
+			registeredPlugin1 = plugin.name;
+		};
+		const listener2 = (plugin: AnyPlugin) => {
+			registeredPlugin2 = plugin.name;
+		};
+		pluginRegistry.addListener("register", listener1);
+		pluginRegistry.addListener("register", listener2);
+		pluginRegistry.removeListener("register", listener1);
+
+		pluginRegistry.register({
+			name: "test",
+		});
+
+		expect(registeredPlugin1).toBe("");
+		expect(registeredPlugin2).toBe("test");
+	});
+
+	it("should not notify listeners if no plugin is registered", () => {
+		const pluginRegistry = createPluginRegistry([]);
+		let registeredPlugin = "";
+		pluginRegistry.addListener("register", (plugin) => {
+			registeredPlugin = plugin.name;
+		});
+
+		expect(registeredPlugin).toBe("");
+	});
+
+	it("should fire event if plugin is activated", () => {
+		const pluginRegistry = createPluginRegistry([]);
+
+		let activatedPlugin = "";
+		pluginRegistry.addListener("activate", (plugin) => {
+			activatedPlugin = plugin.name;
+		});
+
+		pluginRegistry.register({
+			name: "test",
+		});
+		pluginRegistry.activate("test");
+
+		expect(activatedPlugin).toBe("test");
+	});
+
+	it("should fire event if plugin is deactivated", () => {
+		const pluginRegistry = createPluginRegistry([]);
+
+		let deactivatedPlugin = "";
+		pluginRegistry.addListener("deactivate", (plugin) => {
+			deactivatedPlugin = plugin.name;
+		});
+
+		pluginRegistry.register({
+			name: "test",
+		});
+		pluginRegistry.activate("test");
+		pluginRegistry.deactivate("test");
+
+		expect(deactivatedPlugin).toBe("test");
+	});
+
+	it("should throw an error if event is invalid", () => {
+		const pluginRegistry = createPluginRegistry([]);
+
+		expect(() =>
+			// @ts-expect-error invalid event
+			pluginRegistry.addListener("invalid", () => {}),
+		).toThrow();
+
+		expect(() =>
+			// @ts-expect-error invalid event
+			pluginRegistry.removeListener("invalid", () => {}),
+		).toThrow();
+	});
+
+	it("should do nothing if a non existing listener is removed", () => {
+		const pluginRegistry = createPluginRegistry([]);
+
+		expect(() =>
+			pluginRegistry.removeListener("register", () => {}),
+		).not.toThrow();
 	});
 });

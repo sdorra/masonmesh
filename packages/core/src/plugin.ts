@@ -9,7 +9,13 @@ export type Plugin<TBinder> = {
 	onDeactivate?: () => void;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyPlugin = Plugin<any>;
+
 type RegisteredPlugin<TBinder> = Plugin<TBinder> & { activated: boolean };
+
+const events = ["activate", "deactivate", "register"] as const;
+type Events = (typeof events)[number];
 
 export function createPluginRegistry<
 	TExtensionPointArray extends Array<AnyExtensionPoint>,
@@ -18,6 +24,12 @@ export function createPluginRegistry<
 	TBinder = Binder<TExtensionPoints, TKeys>,
 >(extensionPoints: TExtensionPointArray) {
 	const plugins = Array<RegisteredPlugin<TBinder>>();
+	const listeners = new Map<Events, Array<(plugin: Plugin<TBinder>) => void>>();
+
+	function fireEvent(event: Events, plugin: Plugin<TBinder>) {
+		const eventListeners = listeners.get(event);
+		eventListeners?.forEach((listener) => listener(plugin));
+	}
 
 	return {
 		plugins: () => {
@@ -33,6 +45,7 @@ export function createPluginRegistry<
 				throw new Error(`Plugin '${plugin.name}' already registered.`);
 			}
 			plugins.push({ ...plugin, activated: false });
+			fireEvent("register", plugin);
 		},
 
 		activate: function (plugin?: string) {
@@ -46,6 +59,7 @@ export function createPluginRegistry<
 					plugin.onActivate(binder);
 				}
 				plugin.activated = true;
+				fireEvent("activate", plugin);
 			}
 
 			if (plugin) {
@@ -70,6 +84,7 @@ export function createPluginRegistry<
 				// remove extensions from the extension points
 				extensionPoints.forEach((ep) => ep.unbindAllFromPlugin(plugin.name));
 				plugin.activated = false;
+				fireEvent("deactivate", plugin);
 			}
 
 			if (plugin) {
@@ -80,6 +95,37 @@ export function createPluginRegistry<
 				deactivatePlugin(pluginToDeactivate);
 			} else {
 				plugins.forEach(deactivatePlugin);
+			}
+		},
+
+		addListener: function (
+			event: Events,
+			listener: (plugin: Plugin<TBinder>) => void,
+		) {
+			if (!events.includes(event)) {
+				throw new Error(`Invalid event '${event}'.`);
+			}
+			if (!listeners.has(event)) {
+				listeners.set(event, []);
+			}
+			const eventListeners = listeners.get(event)!;
+			eventListeners.push(listener);
+		},
+
+		removeListener: function (
+			event: Events,
+			listener: (plugin: Plugin<TBinder>) => void,
+		) {
+			if (!events.includes(event)) {
+				throw new Error(`Invalid event '${event}'.`);
+			}
+			if (!listeners.has(event)) {
+				return;
+			}
+			const eventListeners = listeners.get(event)!;
+			const index = eventListeners.indexOf(listener);
+			if (index >= 0) {
+				eventListeners.splice(index, 1);
 			}
 		},
 	};
