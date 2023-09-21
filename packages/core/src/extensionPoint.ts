@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export type Predicate<TParam> = (params: TParam) => boolean;
 
 type Extension<TExtensionType, TPredicateParam> = {
@@ -36,6 +38,31 @@ export type ExtensionPoint<
 	extensions: () => Array<Extension<TExtensionType, TPredicateParam>>;
 	isMulti: TMulti;
 };
+
+
+export type GetKey<TExtensionPoint> = TExtensionPoint extends ExtensionPoint<
+	any,
+	infer TKey,
+	any,
+	any
+>
+	? TKey
+	: never;
+
+export type GetExtensionType<TExtensionPoint> =
+	TExtensionPoint extends ExtensionPoint<infer TExtensionType, any, any, any>
+		? TExtensionType
+		: never;
+
+export type GetPredicateParam<TExtensionPoint> =
+	TExtensionPoint extends ExtensionPoint<any, any, infer TPredicateParams, any>
+		? TPredicateParams
+		: never;
+
+export type GetIsMulti<TExtensionPoint> =
+	TExtensionPoint extends ExtensionPoint<any, any, any, infer TIsMulti>
+		? TIsMulti
+		: never;
 
 function isSingleOptions(options: Options): options is SingleOptions {
 	return (options as SingleOptions).policy !== undefined;

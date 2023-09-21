@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ExtensionPoint } from "./extensionPoint";
-import { GetKey, createBinder, Binder } from "./binder";
+import { ExtensionPoint, GetKey } from "./extensionPoint";
+import { createBinder, Binder } from "./binder";
 
 export type Plugin<TBinder> = {
 	name: string;

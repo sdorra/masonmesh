@@ -1,30 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ExtensionPoint, Predicate } from "./extensionPoint";
-
-export type GetKey<TExtensionPoint> = TExtensionPoint extends ExtensionPoint<
-	any,
-	infer TKey,
-	any,
-	any
->
-	? TKey
-	: never;
-
-export type GetExtensionType<TExtensionPoint> =
-	TExtensionPoint extends ExtensionPoint<infer TExtensionType, any, any, any>
-		? TExtensionType
-		: never;
-
-export type GetPredicateParam<TExtensionPoint> =
-	TExtensionPoint extends ExtensionPoint<any, any, infer TPredicateParams, any>
-		? TPredicateParams
-		: never;
-
-export type GetIsMulti<TExtensionPoint> =
-	TExtensionPoint extends ExtensionPoint<any, any, any, infer TIsMulti>
-		? TIsMulti
-		: never;
+import {
+	ExtensionPoint,
+	GetExtensionType,
+	GetKey,
+	GetPredicateParam,
+	Predicate,
+} from "./extensionPoint";
 
 export type Binder<TExtensionPoints, TKeys> = {
 	bind: <
