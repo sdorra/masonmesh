@@ -22,6 +22,9 @@ const targets = plugins.map((plugin) => ({
 }));
 
 export default defineConfig({
+	build: {
+		target: "esnext",
+	},
 	plugins: [
 		viteStaticCopy({
 			targets,
