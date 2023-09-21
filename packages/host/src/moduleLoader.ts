@@ -11,13 +11,22 @@ type Module = {
 	fn: Factory;
 };
 
+const events = ["define", "loaded"] as const;
+type Events = (typeof events)[number];
+type Listener = (module: string) => void;
+
 export function createModuleLoader() {
 	let anonymousModuleId = 0;
-	let defineCounter = 0;
 
 	const modules = new Map<string, unknown>();
 	const lazyModules = new Map<string, () => Promise<unknown>>();
 	const queue = new Map<string, Module>();
+	const listeners = new Map<Events, Array<Listener>>();
+
+	function fireEvent(event: Events, module: string) {
+		const eventListeners = listeners.get(event);
+		eventListeners?.forEach((listener) => listener(module));
+	}
 
 	function allDependenciesAvailable(module: Module) {
 		for (const dependency of module.dependencies) {
@@ -45,6 +54,7 @@ export function createModuleLoader() {
 			}
 		}
 		modules.set(name, module.fn(...resolvedDependecies));
+		fireEvent("loaded", name);
 	}
 
 	async function resolveAndDefineModule(name: string, module: Module) {
@@ -96,7 +106,6 @@ export function createModuleLoader() {
 		second?: string[] | Factory,
 		third?: Factory,
 	): Promise<void> {
-		defineCounter++;
 		// check if first argument is name
 		let name: string;
 		let dependencies: string[];
@@ -117,6 +126,8 @@ export function createModuleLoader() {
 			fn = first;
 		}
 
+		fireEvent("define", name);
+
 		await resolveAndDefineModule(name, { dependencies, fn });
 		await handleQueue();
 	}
@@ -133,17 +144,18 @@ export function createModuleLoader() {
 		window.define = define;
 	}
 
-	function stats() {
-		return {
-			modules: modules.size,
-			lazyModules: lazyModules.size,
-			queued: queue.size,
-			defined: defineCounter,
-		};
+	function addListener(event: Events, listener: Listener) {
+		const eventListeners = listeners.get(event) || [];
+		eventListeners.push(listener);
+		listeners.set(event, eventListeners);
 	}
 
-	function queuedModules() {
-		return Array.from(queue.keys());
+	function removeListener(event: Events, listener: Listener) {
+		const eventListeners = listeners.get(event) || [];
+		const index = eventListeners.indexOf(listener);
+		if (index > -1) {
+			eventListeners.splice(index, 1);
+		}
 	}
 
 	return {
@@ -151,7 +163,7 @@ export function createModuleLoader() {
 		define,
 		defineStatic,
 		defineLazy,
-		stats,
-		queuedModules,
+		addListener,
+		removeListener,
 	};
 }

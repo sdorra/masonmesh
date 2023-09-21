@@ -157,62 +157,30 @@ describe("moduleLoader tests", () => {
 		expect(run).toBe(true);
 	});
 
-	it("should return empty stats", () => {
-		expect(loader.stats()).toEqual({
-			modules: 0,
-			lazyModules: 0,
-			queued: 0,
-			defined: 0,
-		});
-	});
+	it("should fire define event when module is defined", () => {
+		const listener = vi.fn();
+		loader.addListener("define", listener);
 
-	it("should increase module count for static modules", () => {
-		loader.defineStatic("foo", "bar");
-
-		expect(loader.stats()).toEqual({
-			modules: 1,
-			lazyModules: 0,
-			queued: 0,
-			defined: 0,
-		});
-	});
-
-	it("should increase module count for lazy modules", () => {
-		loader.defineLazy("foo", async () => {});
-
-		expect(loader.stats()).toEqual({
-			modules: 0,
-			lazyModules: 1,
-			queued: 0,
-			defined: 0,
-		});
-	});
-
-	it("should increase module count for defined modules", () => {
 		loader.define("foo", [], () => {});
 
-		expect(loader.stats()).toEqual({
-			modules: 1,
-			lazyModules: 0,
-			queued: 0,
-			defined: 1,
-		});
+		expect(listener).toHaveBeenCalledWith("foo");
 	});
 
-	it("should increase module count for queued modules", () => {
-		loader.define("foo", ["bar"], () => {});
+	it("should fire loaded event when module is loaded", () => {
+		const listener = vi.fn();
+		loader.addListener("loaded", listener);
 
-		expect(loader.stats()).toEqual({
-			modules: 0,
-			lazyModules: 0,
-			queued: 1,
-			defined: 1,
-		});
+		loader.define("foo", [], () => {});
+
+		expect(listener).toHaveBeenCalledWith("foo");
 	});
 
-	it("should reutrn return queued modules", () => {
+	it("should not fire loaded event when module is queued", () => {
+		const listener = vi.fn();
+		loader.addListener("loaded", listener);
+
 		loader.define("foo", ["bar"], () => {});
 
-		expect(loader.queuedModules()).toEqual(["foo"]);
+		expect(listener).not.toHaveBeenCalled();
 	});
 });
