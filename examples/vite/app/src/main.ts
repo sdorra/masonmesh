@@ -12,10 +12,11 @@ moduleLoader.defineStatic("@masonmesh/example-vite", api);
 // assign define to window
 moduleLoader.assign();
 
-// TODO this should be more dynamic
-const plugins = ["plugin-red"];
+const plugins: string[] = await fetch("/plugins.json").then((response) =>
+	response.json(),
+);
 
-plugins.map((plugin) => `/plugins/${plugin}.js`).forEach(loadScript);
+plugins.map((plugin) => `/plugins/plugin-${plugin}.js`).forEach(loadScript);
 
 const app = document.querySelector("#app");
 if (!app) {
