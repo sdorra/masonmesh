@@ -10,16 +10,20 @@
 		"build:api": "tsup src/api.ts --dts --format esm --clean --outDir lib",
 		"build:app": "vite build",
 		"build": "pnpm run build:api && pnpm run build:app",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"typecheck": "tsc --noEmit",
+		"lint": "eslint --ext .ts src",
+		"e2e": "playwright test"
 	},
 	"dependencies": {
 		"@masonmesh/core": "workspace:*",
-		"@masonmesh/host": "workspace:*",
-		"@masonmesh/example-vite-plugin-red": "workspace:*"
+		"@masonmesh/example-vite-plugin-red": "workspace:*",
+		"@masonmesh/host": "workspace:*"
 	},
 	"devDependencies": {
 		"@masonmesh/eslint-config": "workspace:*",
 		"@masonmesh/tsconfig": "workspace:*",
+		"@playwright/test": "^1.38.0",
 		"@types/node": "^20.6.3",
 		"tsup": "^7.2.0",
 		"typescript": "^5.0.2",

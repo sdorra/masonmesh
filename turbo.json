@@ -4,7 +4,11 @@
 	"pipeline": {
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": ["dist/**/*"]
+			"outputs": ["dist/**/*", "coverage/**/*"]
+		},
+		"e2e": {
+			"dependsOn": ["^build", "^e2e"],
+			"outputs": ["playwright-report/**/*", "test-results/**/*"]
 		},
 		"test": {
 			"dependsOn": ["^test"],
@@ -17,7 +21,7 @@
 			"dependsOn": ["^lint"]
 		},
 		"check": {
-			"dependsOn": ["typecheck", "lint", "test"]
+			"dependsOn": ["typecheck", "lint", "test", "e2e"]
 		}
 	}
 }
