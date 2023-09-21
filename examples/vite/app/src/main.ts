@@ -1,6 +1,6 @@
 import "./styles.css";
 // TODO use named export
-import createModuleLoader from "@masonmesh/host";
+import { createModuleLoader, loadScript } from "@masonmesh/host";
 import { resolver, pluginRegistry } from "./plugins";
 import * as api from "./api";
 
@@ -9,28 +9,13 @@ const moduleLoader = createModuleLoader();
 // but a dependency is still missing?
 moduleLoader.defineStatic("@masonmesh/example-vite", api);
 
-// TODO can we do this in the host package?
-// if not we should document this
-declare global {
-	interface Window {
-		define: typeof moduleLoader.define;
-	}
-}
-
-// TODO can we do this in the host package?
-window.define = moduleLoader.define;
+// assign define to window
+moduleLoader.assign();
 
 // TODO this should be more dynamic
 const plugins = ["plugin-red"];
 
-// TODO we should have a way in the host package for this
-plugins.forEach((plugin) => {
-	const script = document.createElement("script");
-	script.async = true;
-	script.src = `/plugins/${plugin}.js`;
-	document.body.appendChild(script);
-	document.body.removeChild(script);
-});
+plugins.map((plugin) => `/plugins/${plugin}.js`).forEach(loadScript);
 
 const app = document.querySelector("#app");
 if (!app) {

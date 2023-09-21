@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import createModuleLoader from ".";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { createModuleLoader } from "./moduleLoader";
 
 describe("module order", () => {
 	let loader: ReturnType<typeof createModuleLoader>;
@@ -118,6 +118,15 @@ describe("module order", () => {
 		});
 
 		expect(result).toEqual("3213");
+	});
+
+	it("should assing define to window", async () => {
+		const window = vi.fn();
+		vi.stubGlobal("window", window);
+
+		loader.assign();
+
+		expect(window).toHaveProperty("define", loader.define);
 	});
 
 	describe("lazy modules", () => {
