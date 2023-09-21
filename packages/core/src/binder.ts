@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
-	ExtensionPoint,
+	AnyExtensionPoint,
 	GetExtensionType,
 	GetKey,
 	GetPredicateParam,
@@ -20,7 +20,7 @@ export type Binder<TExtensionPoints, TKeys> = {
 };
 
 export function createBinder<
-	TExtensionPointArray extends Array<ExtensionPoint<any, any, any, any>>,
+	TExtensionPointArray extends Array<AnyExtensionPoint>,
 	TExtensionPoints extends TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
 >(

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 export type Predicate<TParam> = (params: TParam) => boolean;
 
 type Extension<TExtensionType, TPredicateParam> = {
@@ -39,6 +38,7 @@ export type ExtensionPoint<
 	isMulti: TMulti;
 };
 
+export type AnyExtensionPoint = ExtensionPoint<any, any, any, any>;
 
 export type GetKey<TExtensionPoint> = TExtensionPoint extends ExtensionPoint<
 	any,

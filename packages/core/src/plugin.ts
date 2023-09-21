@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { ExtensionPoint, GetKey } from "./extensionPoint";
+import { AnyExtensionPoint, GetKey } from "./extensionPoint";
 import { createBinder, Binder } from "./binder";
 
 export type Plugin<TBinder> = {
@@ -14,7 +12,7 @@ export type Plugin<TBinder> = {
 type RegisteredPlugin<TBinder> = Plugin<TBinder> & { activated: boolean };
 
 export function createPluginRegistry<
-	TExtensionPointArray extends Array<ExtensionPoint<any, any, any, any>>,
+	TExtensionPointArray extends Array<AnyExtensionPoint>,
 	TExtensionPoints extends TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
 	TBinder = Binder<TExtensionPoints, TKeys>,
@@ -43,8 +41,8 @@ export function createPluginRegistry<
 					throw new Error(`Plugin '${plugin.name}' is already activated.`);
 				}
 				if (plugin.onActivate) {
-					// TODO can we get rid of the any here?
-					const binder: any = createBinder(extensionPoints, plugin.name);
+					// TODO can we get rid of the type cast here?
+					const binder = createBinder(extensionPoints, plugin.name) as TBinder;
 					plugin.onActivate(binder);
 				}
 				plugin.activated = true;
