@@ -17,18 +17,39 @@ type RegisteredPlugin<TBinder> = Plugin<TBinder> & { activated: boolean };
 const events = ["activate", "deactivate", "register"] as const;
 type Events = (typeof events)[number];
 
+type Options = {
+	autoActivate?: boolean;
+};
+
+const defaultOptions: Options = {
+	autoActivate: false,
+};
+
 export function createPluginRegistry<
 	TExtensionPointArray extends Array<AnyExtensionPoint>,
 	TExtensionPoints extends TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
 	TBinder = Binder<TExtensionPoints, TKeys>,
->(extensionPoints: TExtensionPointArray) {
+>(extensionPoints: TExtensionPointArray, options = defaultOptions) {
 	const plugins = Array<RegisteredPlugin<TBinder>>();
 	const listeners = new Map<Events, Array<(plugin: Plugin<TBinder>) => void>>();
 
 	function fireEvent(event: Events, plugin: Plugin<TBinder>) {
 		const eventListeners = listeners.get(event);
 		eventListeners?.forEach((listener) => listener(plugin));
+	}
+
+	function activatePlugin(plugin: RegisteredPlugin<TBinder>) {
+		if (plugin.activated) {
+			throw new Error(`Plugin '${plugin.name}' is already activated.`);
+		}
+		if (plugin.onActivate) {
+			// TODO can we get rid of the type cast here?
+			const binder = createBinder(extensionPoints, plugin.name) as TBinder;
+			plugin.onActivate(binder);
+		}
+		plugin.activated = true;
+		fireEvent("activate", plugin);
 	}
 
 	return {
@@ -44,24 +65,15 @@ export function createPluginRegistry<
 			if (plugins.find((p) => p.name === plugin.name)) {
 				throw new Error(`Plugin '${plugin.name}' already registered.`);
 			}
-			plugins.push({ ...plugin, activated: false });
+			const registeredPlugin = { ...plugin, activated: false };
+			plugins.push(registeredPlugin);
 			fireEvent("register", plugin);
+			if (options.autoActivate) {
+				activatePlugin(registeredPlugin);
+			}
 		},
 
 		activate: function (plugin?: string) {
-			function activatePlugin(plugin: RegisteredPlugin<TBinder>) {
-				if (plugin.activated) {
-					throw new Error(`Plugin '${plugin.name}' is already activated.`);
-				}
-				if (plugin.onActivate) {
-					// TODO can we get rid of the type cast here?
-					const binder = createBinder(extensionPoints, plugin.name) as TBinder;
-					plugin.onActivate(binder);
-				}
-				plugin.activated = true;
-				fireEvent("activate", plugin);
-			}
-
 			if (plugin) {
 				const pluginToActivate = plugins.find((p) => p.name === plugin);
 				if (!pluginToActivate) {

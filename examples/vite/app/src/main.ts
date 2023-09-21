@@ -51,11 +51,6 @@ function renderPlugins() {
 						.join("")}</ul>`;
 }
 
-// TODO is this such a common use case that we should provide a option for this?
-pluginRegistry.addListener("register", (plugin) => {
-	pluginRegistry.activate(plugin.name);
-});
-
 pluginRegistry.addListener("activate", (plugin) => {
 	console.log(`Plugin activated: ${plugin.name}`);
 

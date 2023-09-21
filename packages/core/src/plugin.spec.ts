@@ -360,4 +360,21 @@ describe("test plugin registry", () => {
 			pluginRegistry.removeListener("register", () => {}),
 		).not.toThrow();
 	});
+
+	it("should automatically activate plugin if it is registered", () => {
+		const foo = extensionPoint<number>().single("foo");
+
+		const pluginRegistry = createPluginRegistry([foo], {
+			autoActivate: true,
+		});
+
+		pluginRegistry.register({
+			name: "test",
+			onActivate: (binder) => {
+				binder.bind("foo", 42);
+			},
+		});
+
+		expect(foo.extensions()).toEqual([{ extension: 42, plugin: "test" }]);
+	});
 });
