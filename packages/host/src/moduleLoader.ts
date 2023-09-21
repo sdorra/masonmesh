@@ -15,27 +15,41 @@ const events = ["define", "loaded", "queued"] as const;
 type Events = (typeof events)[number];
 type Listener = (module: string) => void;
 
+type QueuedListener = (module: string, missingDependencies: string[]) => void;
+
 export function createModuleLoader() {
 	let anonymousModuleId = 0;
 
 	const modules = new Map<string, unknown>();
 	const lazyModules = new Map<string, () => Promise<unknown>>();
 	const queue = new Map<string, Module>();
+	const queuedListeners: Array<QueuedListener> = [];
 	const listeners = new Map<Events, Array<Listener>>();
 
-	function fireEvent(event: Events, module: string) {
+	function fireEvent(event: Exclude<Events, "queued">, module: string) {
 		const eventListeners = listeners.get(event);
 		eventListeners?.forEach((listener) => listener(module));
 	}
 
-	function allDependenciesAvailable(module: Module) {
+	function fireQueuedEvent(module: string, missingDependencies: string[]) {
+		queuedListeners.forEach((listener) =>
+			listener(module, missingDependencies),
+		);
+	}
+
+	function findMissingDependencies(module: Module) {
+		const missingDependencies = [];
 		for (const dependency of module.dependencies) {
 			if (!modules.has(dependency) && !lazyModules.has(dependency)) {
-				return false;
+				missingDependencies.push(dependency);
 			}
 		}
 
-		return true;
+		return missingDependencies;
+	}
+
+	function allDependenciesAvailable(module: Module) {
+		return findMissingDependencies(module).length === 0;
 	}
 
 	async function defineModule(name: string, module: Module) {
@@ -49,6 +63,8 @@ export function createModuleLoader() {
 					await lazyModule();
 					resolvedDependecies.push();
 				} else {
+					// this should never happen,
+					// because we check for missing dependencies before defining a module
 					throw new Error(`Module ${dependency} not found`);
 				}
 			}
@@ -58,11 +74,12 @@ export function createModuleLoader() {
 	}
 
 	async function resolveAndDefineModule(name: string, module: Module) {
-		if (allDependenciesAvailable(module)) {
+		const missingDependencies = findMissingDependencies(module);
+		if (missingDependencies.length === 0) {
 			defineModule(name, module);
 		} else {
 			queue.set(name, module);
-			fireEvent("queued", name);
+			fireQueuedEvent(name, missingDependencies);
 		}
 	}
 
@@ -145,17 +162,40 @@ export function createModuleLoader() {
 		window.define = define;
 	}
 
-	function addListener(event: Events, listener: Listener) {
-		const eventListeners = listeners.get(event) || [];
-		eventListeners.push(listener);
-		listeners.set(event, eventListeners);
+	function isQueuedListener(
+		event: Events,
+		listener: Listener | QueuedListener,
+	): listener is QueuedListener {
+		return typeof listener === "function" && event === "queued";
 	}
 
-	function removeListener(event: Events, listener: Listener) {
-		const eventListeners = listeners.get(event) || [];
-		const index = eventListeners.indexOf(listener);
-		if (index > -1) {
-			eventListeners.splice(index, 1);
+	function addListener(event: "queued", listener: QueuedListener): void;
+	function addListener(event: Events, listener: Listener): void;
+
+	function addListener(event: Events, listener: Listener | QueuedListener) {
+		if (isQueuedListener(event, listener)) {
+			queuedListeners.push(listener);
+		} else {
+			const eventListeners = listeners.get(event) || [];
+			eventListeners.push(listener);
+			listeners.set(event, eventListeners);
+		}
+	}
+
+	function removeListener(event: "queued", listener: QueuedListener): void;
+	function removeListener(event: Events, listener: Listener): void;
+	function removeListener(event: Events, listener: Listener | QueuedListener) {
+		if (isQueuedListener(event, listener)) {
+			const index = queuedListeners.indexOf(listener);
+			if (index > -1) {
+				queuedListeners.splice(index, 1);
+			}
+		} else {
+			const eventListeners = listeners.get(event) || [];
+			const index = eventListeners.indexOf(listener);
+			if (index > -1) {
+				eventListeners.splice(index, 1);
+			}
 		}
 	}
 

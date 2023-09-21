@@ -184,12 +184,27 @@ describe("moduleLoader tests", () => {
 		expect(listener).not.toHaveBeenCalled();
 	});
 
-	it("should fire loaded event when module is queued", () => {
+	it("should fire queued event with missing dependencies", () => {
 		const listener = vi.fn();
 		loader.addListener("queued", listener);
 
 		loader.define("foo", ["bar"], () => {});
 
-		expect(listener).toHaveBeenCalledWith("foo");
+		expect(listener).toHaveBeenCalledWith("foo", ["bar"]);
+	});
+
+	it("should notify listener after it is removed", () => {
+		const queuedListener = vi.fn();
+		loader.addListener("queued", queuedListener);
+		loader.removeListener("queued", queuedListener);
+
+		const definedListener = vi.fn();
+		loader.addListener("define", definedListener);
+		loader.removeListener("define", definedListener);
+
+		loader.define("foo", ["bar"], () => {});
+
+		expect(queuedListener).not.toHaveBeenCalled();
+		expect(definedListener).not.toHaveBeenCalled();
 	});
 });
