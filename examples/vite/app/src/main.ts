@@ -7,6 +7,17 @@ const plugins: string[] = await fetch("/plugins.json").then((response) =>
 	response.json(),
 );
 
+// TODO what should happen, if one of the following errors occur?:
+// - script not found
+// - script throws an error
+// - module throws an error
+// - dependency not found
+//
+// We have to choose between:
+// - reject the promise with an error message
+// - continue and log the error
+// - lets the user decide and pass an error handler
+
 await loadModules({
 	modules: plugins,
 	moduleNameTransform: (module) => `/plugins/plugin-${module}.js`,
