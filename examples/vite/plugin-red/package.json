@@ -1,0 +1,21 @@
+{
+	"name": "@masonmesh/example-vite-plugin-red",
+	"private": true,
+	"version": "0.0.0",
+	"scripts": {
+		"build": "vite build"
+	},
+	"peerDependencies": {
+		"@masonmesh/example-vite": "workspace:*"
+	},
+	"devDependencies": {
+		"@masonmesh/eslint-config": "workspace:*",
+		"@masonmesh/tsconfig": "workspace:*",
+		"@types/node": "^20.6.3",
+		"typescript": "^5.0.2",
+		"vite": "^4.4.5"
+	},
+	"eslintConfig": {
+		"extends": "@masonmesh/eslint-config"
+	}
+}

@@ -1,0 +1,32 @@
+{
+	"name": "@masonmesh/example-vite",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"main": "lib/api.js",
+	"types": "lib/api.d.ts",
+	"scripts": {
+		"dev": "vite",
+		"build:api": "tsup src/api.ts --dts --format esm --clean --outDir lib",
+		"build:app": "vite build",
+		"build": "pnpm run build:api && pnpm run build:app",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@masonmesh/core": "workspace:*",
+		"@masonmesh/host": "workspace:*",
+		"@masonmesh/example-vite-plugin-red": "workspace:*"
+	},
+	"devDependencies": {
+		"@masonmesh/eslint-config": "workspace:*",
+		"@masonmesh/tsconfig": "workspace:*",
+		"@types/node": "^20.6.3",
+		"tsup": "^7.2.0",
+		"typescript": "^5.0.2",
+		"vite": "^4.4.5",
+		"vite-plugin-static-copy": "^0.17.0"
+	},
+	"eslintConfig": {
+		"extends": "@masonmesh/eslint-config"
+	}
+}
