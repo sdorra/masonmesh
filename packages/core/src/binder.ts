@@ -5,19 +5,25 @@ import { ExtensionPoint, Predicate } from "./extensionPoint";
 export type GetKey<TExtensionPoint> = TExtensionPoint extends ExtensionPoint<
 	any,
 	infer TKey,
+	any,
 	any
 >
 	? TKey
 	: never;
 
 export type GetExtensionType<TExtensionPoint> =
-	TExtensionPoint extends ExtensionPoint<infer TExtensionType, any, any>
+	TExtensionPoint extends ExtensionPoint<infer TExtensionType, any, any, any>
 		? TExtensionType
 		: never;
 
 export type GetPredicateParam<TExtensionPoint> =
-	TExtensionPoint extends ExtensionPoint<any, any, infer TPredicateParams>
+	TExtensionPoint extends ExtensionPoint<any, any, infer TPredicateParams, any>
 		? TPredicateParams
+		: never;
+
+export type GetIsMulti<TExtensionPoint> =
+	TExtensionPoint extends ExtensionPoint<any, any, any, infer TIsMulti>
+		? TIsMulti
 		: never;
 
 export type Binder<TExtensionPoints, TKeys> = {
@@ -32,7 +38,7 @@ export type Binder<TExtensionPoints, TKeys> = {
 };
 
 export function createBinder<
-	TExtensionPointArray extends Array<ExtensionPoint<any, any, any>>,
+	TExtensionPointArray extends Array<ExtensionPoint<any, any, any, any>>,
 	TExtensionPoints extends TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
 >(

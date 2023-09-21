@@ -14,7 +14,7 @@ export type Plugin<TBinder> = {
 type RegisteredPlugin<TBinder> = Plugin<TBinder> & { activated: boolean };
 
 export function createPluginRegistry<
-	TExtensionPointArray extends Array<ExtensionPoint<any, any, any>>,
+	TExtensionPointArray extends Array<ExtensionPoint<any, any, any, any>>,
 	TExtensionPoints extends TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
 	TBinder = Binder<TExtensionPoints, TKeys>,

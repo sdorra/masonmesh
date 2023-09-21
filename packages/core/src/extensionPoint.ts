@@ -28,11 +28,13 @@ export type ExtensionPoint<
 	TExtensionType,
 	TKey extends string,
 	TPredicateParam,
+	TMulti extends boolean,
 > = {
 	key: TKey;
 	bind(extension: Extension<TExtensionType, TPredicateParam>): void;
 	unbindAllFromPlugin(plugin: string): void;
 	extensions: () => Array<Extension<TExtensionType, TPredicateParam>>;
+	isMulti: TMulti;
 };
 
 function isSingleOptions(options: Options): options is SingleOptions {
@@ -43,10 +45,12 @@ function createExtensionPoint<
 	TExtensionType,
 	TKey extends string,
 	TPredicateParams,
+	TMulti extends boolean,
 >(
 	key: TKey,
 	options: Options,
-): ExtensionPoint<TExtensionType, TKey, TPredicateParams> {
+	isMulti: TMulti,
+): ExtensionPoint<TExtensionType, TKey, TPredicateParams, TMulti> {
 	const extensions: Array<Extension<TExtensionType, TPredicateParams>> = [];
 
 	function bind(extension: Extension<TExtensionType, TPredicateParams>) {
@@ -88,6 +92,7 @@ function createExtensionPoint<
 		bind,
 		extensions: () => [...extensions],
 		unbindAllFromPlugin,
+		isMulti,
 	};
 }
 
@@ -104,15 +109,20 @@ export function extensionPoint<TExtensionType, TPredicateParam = undefined>() {
 			options: SingleOptions = defaultSingleOptions,
 		) => {
 			validateSingleOptions(options);
-			return createExtensionPoint<TExtensionType, TKey, TPredicateParam>(
+			return createExtensionPoint<TExtensionType, TKey, TPredicateParam, false>(
 				key,
 				options,
+				false,
 			);
 		},
 		multi: <TKey extends string>(
 			key: TKey,
 			options: MultiOptions = defaultMultiOptions,
 		) =>
-			createExtensionPoint<TExtensionType, TKey, TPredicateParam>(key, options),
+			createExtensionPoint<TExtensionType, TKey, TPredicateParam, true>(
+				key,
+				options,
+				true,
+			),
 	};
 }
