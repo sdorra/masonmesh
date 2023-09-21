@@ -13,6 +13,7 @@ type Module = {
 
 export function createModuleLoader() {
 	let anonymousModuleId = 0;
+	let defineCounter = 0;
 
 	const modules = new Map<string, unknown>();
 	const lazyModules = new Map<string, () => Promise<unknown>>();
@@ -95,6 +96,7 @@ export function createModuleLoader() {
 		second?: string[] | Factory,
 		third?: Factory,
 	): Promise<void> {
+		defineCounter++;
 		// check if first argument is name
 		let name: string;
 		let dependencies: string[];
@@ -131,10 +133,25 @@ export function createModuleLoader() {
 		window.define = define;
 	}
 
+	function stats() {
+		return {
+			modules: modules.size,
+			lazyModules: lazyModules.size,
+			queued: queue.size,
+			defined: defineCounter,
+		};
+	}
+
+	function queuedModules() {
+		return Array.from(queue.keys());
+	}
+
 	return {
 		assign,
 		define,
 		defineStatic,
 		defineLazy,
+		stats,
+		queuedModules,
 	};
 }

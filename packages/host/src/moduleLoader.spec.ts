@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { createModuleLoader } from "./moduleLoader";
 
-describe("module order", () => {
+describe("moduleLoader tests", () => {
 	let loader: ReturnType<typeof createModuleLoader>;
 
 	beforeEach(() => {
@@ -129,33 +129,90 @@ describe("module order", () => {
 		expect(window).toHaveProperty("define", loader.define);
 	});
 
-	describe("lazy modules", () => {
-		it("should not load the lazy module", async () => {
-			let run = false;
+	it("should not load the lazy module", async () => {
+		let run = false;
 
-			await loader.defineLazy("foo", async () => {
-				run = true;
-			});
-
-			await loader.define("bar", [], () => {
-				return "3";
-			});
-
-			expect(run).toBe(false);
+		await loader.defineLazy("foo", async () => {
+			run = true;
 		});
 
-		it("should load the lazy module when it is needed", async () => {
-			let run = false;
-
-			await loader.defineLazy("foo", async () => {
-				run = true;
-			});
-
-			await loader.define("bar", ["foo"], () => {
-				return "3";
-			});
-
-			expect(run).toBe(true);
+		await loader.define("bar", [], () => {
+			return "3";
 		});
+
+		expect(run).toBe(false);
+	});
+
+	it("should load the lazy module when it is needed", async () => {
+		let run = false;
+
+		await loader.defineLazy("foo", async () => {
+			run = true;
+		});
+
+		await loader.define("bar", ["foo"], () => {
+			return "3";
+		});
+
+		expect(run).toBe(true);
+	});
+
+	it("should return empty stats", () => {
+		expect(loader.stats()).toEqual({
+			modules: 0,
+			lazyModules: 0,
+			queued: 0,
+			defined: 0,
+		});
+	});
+
+	it("should increase module count for static modules", () => {
+		loader.defineStatic("foo", "bar");
+
+		expect(loader.stats()).toEqual({
+			modules: 1,
+			lazyModules: 0,
+			queued: 0,
+			defined: 0,
+		});
+	});
+
+	it("should increase module count for lazy modules", () => {
+		loader.defineLazy("foo", async () => {});
+
+		expect(loader.stats()).toEqual({
+			modules: 0,
+			lazyModules: 1,
+			queued: 0,
+			defined: 0,
+		});
+	});
+
+	it("should increase module count for defined modules", () => {
+		loader.define("foo", [], () => {});
+
+		expect(loader.stats()).toEqual({
+			modules: 1,
+			lazyModules: 0,
+			queued: 0,
+			defined: 1,
+		});
+	});
+
+	it("should increase module count for queued modules", () => {
+		loader.define("foo", ["bar"], () => {});
+
+		expect(loader.stats()).toEqual({
+			modules: 0,
+			lazyModules: 0,
+			queued: 1,
+			defined: 1,
+		});
+	});
+
+	it("should reutrn return queued modules", () => {
+		loader.define("foo", ["bar"], () => {});
+
+		expect(loader.queuedModules()).toEqual(["foo"]);
 	});
 });

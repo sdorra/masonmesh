@@ -1,9 +1,9 @@
 {
   "extends": "@masonmesh/tsconfig/base.json",
 	"compilerOptions": {
-		"lib": ["ES2015", "DOM"],
+		"lib": ["ES2017", "DOM"],
 		"module": "ESNext",
-    "target": "es6"
+    "target": "ES2017"
 	},
   "include": ["src"],
   "exclude": ["dist", "build", "node_modules"]
