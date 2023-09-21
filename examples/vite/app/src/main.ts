@@ -1,5 +1,4 @@
 import "./styles.css";
-// TODO use named export
 import { createModuleLoader, loadScript } from "@masonmesh/host";
 import { resolver, pluginRegistry } from "./plugins";
 import * as api from "./api";
