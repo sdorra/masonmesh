@@ -1,0 +1,15 @@
+{
+	"extends": "@masonmesh/tsconfig/base.json",
+	"compilerOptions": {
+		"lib": ["ES2017", "DOM"],
+		"module": "ESNext",
+		"jsx": "react",
+		"target": "ES2017",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"]
+		}
+	},
+	"include": ["src", "e2e"],
+	"exclude": ["dist", "build", "node_modules"]
+}

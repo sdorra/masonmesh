@@ -13,13 +13,13 @@ type GetResolveReturnType<TExtensionPoint> =
 
 export function createResolver<
 	TExtensionPointArray extends Array<AnyExtensionPoint>,
-	TExtensionPoints extends TExtensionPointArray[number],
+	TExtensionPoints = TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
 >(extensionPoints: TExtensionPointArray) {
 	return {
 		resolve: <
 			TKey extends TKeys,
-			TExtensionPoint extends Extract<TExtensionPoints, { key: TKey }>,
+			TExtensionPoint = Extract<TExtensionPoints, { key: TKey }>,
 			TReturnType = GetResolveReturnType<TExtensionPoint>,
 		>(
 			key: TKey,

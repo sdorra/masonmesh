@@ -27,7 +27,7 @@ const defaultOptions: Options = {
 
 export function createPluginRegistry<
 	TExtensionPointArray extends Array<AnyExtensionPoint>,
-	TExtensionPoints extends TExtensionPointArray[number],
+	TExtensionPoints = TExtensionPointArray[number],
 	TKeys = GetKey<TExtensionPoints>,
 	TBinder = Binder<TExtensionPoints, TKeys>,
 >(extensionPoints: TExtensionPointArray, options = defaultOptions) {
