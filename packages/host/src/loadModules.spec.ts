@@ -25,6 +25,7 @@ describe("loadModules tests", () => {
 				window.define?.(mod, [], () => {
 					mods.push(mod);
 				});
+				return Promise.resolve();
 			},
 		});
 
@@ -40,6 +41,7 @@ describe("loadModules tests", () => {
 				window.define?.(mod, ["bar"], () => {
 					mods.push(mod);
 				});
+				return Promise.resolve();
 			},
 			staticModules: {
 				bar: "bar",
@@ -58,6 +60,7 @@ describe("loadModules tests", () => {
 				window.define?.(mod, ["bar"], () => {
 					mods.push(mod);
 				});
+				return Promise.resolve();
 			},
 			lazyModules: {
 				bar: async () => "bar",
@@ -73,6 +76,7 @@ describe("loadModules tests", () => {
 				modules: ["foo"],
 				loader: function (mod) {
 					window.define?.(mod, ["bar"], () => {});
+					return Promise.resolve();
 				},
 			}),
 		).rejects.toThrowError(
@@ -86,6 +90,7 @@ describe("loadModules tests", () => {
 				modules: ["one", "two"],
 				loader: function (mod) {
 					window.define?.(mod, ["bar"], () => {});
+					return Promise.resolve();
 				},
 			}),
 		).rejects.toThrowError(
@@ -99,6 +104,7 @@ describe("loadModules tests", () => {
 				modules: ["one", "two"],
 				loader: function (mod) {
 					window.define?.(mod, ["bar", "baz"], () => {});
+					return Promise.resolve();
 				},
 			}),
 		).rejects.toThrowError(
@@ -116,5 +122,62 @@ describe("loadModules tests", () => {
 		});
 
 		expect(loadScript).toBeCalledWith("foo");
+	});
+
+	it("should return a promise", () => {
+		const promise = loadModules({
+			modules: ["foo"],
+		});
+
+		expect(promise).toBeInstanceOf(Promise);
+	});
+
+	it("should resolve promise when all modules are loaded", async () => {
+		const promise = loadModules({
+			modules: ["foo"],
+			loader: function (mod) {
+				window.define?.(mod, [], () => {});
+				return Promise.resolve();
+			},
+		});
+		await expect(promise).resolves.toBeUndefined();
+	});
+
+	it("should reject promise when a module is not loaded", async () => {
+		const promise = loadModules({
+			modules: ["foo"],
+			loader: function () {
+				return Promise.resolve();
+			},
+			timeout: 100,
+		});
+
+		await expect(promise).rejects.toThrowError("Failed to load modules foo");
+	});
+
+	it("should reject promise when a module could not be loaded", async () => {
+		const promise = loadModules({
+			modules: ["foo"],
+			loader: function (mod) {
+				return Promise.reject("Failed to load script " + mod);
+			},
+		});
+
+		await expect(promise).rejects.toThrowError("Failed to load script foo");
+	});
+
+	it("should reject promise when a dependency is missing and the timeout is reached", async () => {
+		const promise = loadModules({
+			modules: ["foo", "bar"],
+			loader: function (mod) {
+				if (mod === "foo") {
+					window.define?.(mod, ["bar", "baz"], () => {});
+				}
+				return Promise.resolve();
+			},
+			timeout: 100,
+		});
+
+		await expect(promise).rejects.toThrowError("Failed to load modules foo");
 	});
 });

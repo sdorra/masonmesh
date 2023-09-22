@@ -11,11 +11,13 @@ if (test) {
 	import(`./test-${test}.ts`)
 		.then((result) => {
 			app.classList.remove("error");
+			app.classList.add("success");
 			app.innerHTML = result.default;
 		})
 		.catch((err) => {
+			app.classList.remove("success");
 			app.classList.add("error");
-			app.innerHTML = err.message;
+			app.innerHTML = `Error: ${err}`;
 		});
 } else {
 	app.innerHTML = "No test specified";

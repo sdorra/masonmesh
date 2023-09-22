@@ -5,6 +5,7 @@ export default defineConfig({
 	fullyParallel: true,
 	// reporter: "html",
 	retries: 1,
+	timeout: 1000,
 	use: {
 		baseURL: "http://127.0.0.1:5173",
 		trace: "on-first-retry",

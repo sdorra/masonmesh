@@ -8,10 +8,16 @@ describe("loadScript tests", () => {
 		removeChild: vi.fn(),
 	};
 
-	const script = vi.fn();
+	type Script = {
+		onload?: () => void;
+		onerror?: () => void;
+	};
+
+	let script: Script = {};
 
 	const document = {
 		createElement: (el: string) => {
+			script = {};
 			if (el !== "script") {
 				throw new Error(`Unexpected element ${el}`);
 			}
@@ -44,5 +50,27 @@ describe("loadScript tests", () => {
 
 		expect(body.appendChild).toHaveBeenCalledWith(script);
 		expect(body.removeChild).toHaveBeenCalledWith(script);
+	});
+
+	it("should return promise", () => {
+		const promise = loadScript("/foo.js");
+
+		expect(promise).toBeInstanceOf(Promise);
+	});
+
+	it("should resolve promise when script is loaded", async () => {
+		const promise = loadScript("/foo.js");
+
+		script.onload?.();
+
+		await expect(promise).resolves.toBeUndefined();
+	});
+
+	it("should reject promise when script load fails", async () => {
+		const promise = loadScript("/foo.js");
+
+		script.onerror?.();
+
+		await expect(promise).rejects.toThrowError("Failed to load script /foo.js");
 	});
 });

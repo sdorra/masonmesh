@@ -191,7 +191,10 @@ export function createModuleLoader() {
 				queuedListeners.splice(index, 1);
 			}
 		} else {
-			const eventListeners = listeners.get(event) || [];
+			const eventListeners = listeners.get(event);
+			if (!eventListeners) {
+				return;
+			}
 			const index = eventListeners.indexOf(listener);
 			if (index > -1) {
 				eventListeners.splice(index, 1);

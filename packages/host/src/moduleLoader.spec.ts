@@ -207,4 +207,9 @@ describe("moduleLoader tests", () => {
 		expect(queuedListener).not.toHaveBeenCalled();
 		expect(definedListener).not.toHaveBeenCalled();
 	});
+
+	it("should not fail when removing non existing listener", () => {
+		const definedListener = vi.fn();
+		loader.removeListener("define", definedListener);
+	});
 });

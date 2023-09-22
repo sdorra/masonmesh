@@ -4,7 +4,7 @@ const test: string[] = [];
 
 await loadModules({
 	modules: ["foo"],
-	moduleNameTransform: (mod) => `./${mod}.js`,
+	moduleNameTransform: (mod) => `/${mod}.js`,
 	staticModules: {
 		test: test,
 	},
