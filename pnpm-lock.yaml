@@ -137,6 +137,9 @@ importers:
       '@masonmesh/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@playwright/test':
+        specifier: ^1.38.0
+        version: 1.38.0
       '@vitest/coverage-v8':
         specifier: ^0.34.4
         version: 0.34.4(vitest@0.34.4)
@@ -146,6 +149,9 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
+      vite:
+        specifier: ^4.4.5
+        version: 4.4.9(@types/node@20.6.3)
       vitest:
         specifier: ^0.34.4
         version: 0.34.4

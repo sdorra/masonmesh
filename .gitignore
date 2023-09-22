@@ -37,3 +37,7 @@ yarn-error.log*
 
 # output
 dist
+
+# playwright
+playwright-report
+test-results

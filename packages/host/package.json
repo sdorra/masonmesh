@@ -24,6 +24,7 @@
 	"scripts": {
 		"build": "tsup ./src/index.ts --format cjs,esm --dts --clean",
 		"test": "vitest run --coverage",
+		"e2e": "playwright test",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint ./src --ext .ts"
 	},
@@ -33,9 +34,11 @@
 	"devDependencies": {
 		"@masonmesh/eslint-config": "workspace:*",
 		"@masonmesh/tsconfig": "workspace:*",
+		"@playwright/test": "^1.38.0",
 		"@vitest/coverage-v8": "^0.34.4",
 		"tsup": "^7.2.0",
 		"typescript": "^5.2.2",
+		"vite": "^4.4.5",
 		"vitest": "^0.34.4"
 	},
 	"eslintConfig": {
