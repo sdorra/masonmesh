@@ -44,6 +44,26 @@ describe("ExtensionPoint", () => {
 		expect(list).toHaveTextContent("Three");
 	});
 
+	it("should render nothing for empty single extension", () => {
+		renderWithProvider(
+			<ul>
+				<ExtensionPoint id="empty.single" />
+			</ul>,
+		);
+
+		expect(screen.queryByRole("list")).toBeEmptyDOMElement();
+	});
+
+	it("should render nothing for empty multi extension", () => {
+		renderWithProvider(
+			<ul>
+				<ExtensionPoint id="empty.multi" />
+			</ul>,
+		);
+
+		expect(screen.queryByRole("list")).toBeEmptyDOMElement();
+	});
+
 	it("should render fallback if no extension is bound to single", () => {
 		renderWithProvider(
 			<ExtensionPoint id="empty.single">
