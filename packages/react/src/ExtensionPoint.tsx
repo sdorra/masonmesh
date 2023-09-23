@@ -59,7 +59,7 @@ export function ExtensionPoint(props: Props) {
 
 	const Ext = ({ ext }: { ext: ComponentType<any> }) => {
 		const Extension = ext;
-		if ("props" in props) {
+		if ("props" in props && typeof props.props === "object") {
 			return <Extension {...props.props} />;
 		} else {
 			return <Extension />;

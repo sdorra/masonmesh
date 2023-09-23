@@ -4,7 +4,7 @@ export default defineConfig({
 	testDir: "spec",
 	fullyParallel: true,
 	use: {
-		baseURL: "http://127.0.0.1:5173",
+		baseURL: "http://localhost:5173",
 		trace: "on-first-retry",
 	},
 	projects: [
@@ -15,6 +15,6 @@ export default defineConfig({
 	],
 	webServer: {
 		command: "pnpm run dev",
-		url: "http://127.0.0.1:5173",
+		url: "http://localhost:5173",
 	},
 });
