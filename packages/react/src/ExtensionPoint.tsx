@@ -8,7 +8,7 @@ import {
 	GetPredicateParam,
 } from "@masonmesh/core";
 import { RegisteredExtensionPoints } from "./types";
-import React, { ComponentType } from "react";
+import React, { ComponentType, ReactNode } from "react";
 import { useResolver } from "./useResolver";
 
 type PredicateParam<TExtensionPoint extends AnyExtensionPoint> =
@@ -18,15 +18,22 @@ type PredicateParam<TExtensionPoint extends AnyExtensionPoint> =
 				predicateParam: GetPredicateParam<TExtensionPoint>;
 		  };
 
+type NonEmptyObject<T> = T extends Record<any, never>
+	? never
+	: T extends {}
+	? T
+	: never;
+
 type ComponentProps<TExtensionPoint extends AnyExtensionPoint> =
 	GetExtensionType<TExtensionPoint> extends ComponentType<infer TProps>
-		? TProps extends Record<string, unknown>
-			? { props: TProps }
-			: {}
+		? NonEmptyObject<TProps> extends never
+			? {}
+			: { props: TProps }
 		: {};
 
 type ExtensionPointProps<TExtensionPoint extends AnyExtensionPoint> = {
 	id: GetKey<TExtensionPoint>;
+	children?: ReactNode;
 } & ComponentProps<TExtensionPoint> &
 	PredicateParam<TExtensionPoint>;
 
@@ -60,6 +67,10 @@ export function ExtensionPoint(props: Props) {
 	};
 
 	if (Array.isArray(ext)) {
+		if (ext.length === 0) {
+			return props.children ?? null;
+		}
+
 		return (
 			<>
 				{ext.map((e, i) => (
@@ -73,5 +84,5 @@ export function ExtensionPoint(props: Props) {
 		return <Ext ext={ext} />;
 	}
 
-	return null;
+	return props.children ?? null;
 }

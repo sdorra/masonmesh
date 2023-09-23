@@ -43,4 +43,24 @@ describe("ExtensionPoint", () => {
 		expect(list).toHaveTextContent("Two");
 		expect(list).toHaveTextContent("Three");
 	});
+
+	it("should render fallback if no extension is bound to single", () => {
+		renderWithProvider(
+			<ExtensionPoint id="empty.single">
+				<h1>Fallback</h1>
+			</ExtensionPoint>,
+		);
+
+		expect(screen.getByRole("heading")).toHaveTextContent("Fallback");
+	});
+
+	it("should render fallback if no extension is bound to multi", () => {
+		renderWithProvider(
+			<ExtensionPoint id="empty.multi">
+				<h1>Fallback</h1>
+			</ExtensionPoint>,
+		);
+
+		expect(screen.getByRole("heading")).toHaveTextContent("Fallback");
+	});
 });
