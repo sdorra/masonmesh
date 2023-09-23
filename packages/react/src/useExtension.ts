@@ -21,6 +21,6 @@ export function useExtension<
 	...args: TPredicateParam extends undefined ? [] : [Predicate<TPredicateParam>]
 ): TIsMulti extends true ? Array<TExtensionType> : TExtensionType | null {
 	const resolver = useResolver();
-	// @ts-ignore TODO check
-	return resolver.resolve(key, ...args);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return resolver.resolve(key, ...(args as any));
 }

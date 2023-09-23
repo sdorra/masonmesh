@@ -1,39 +1,11 @@
-import { it, describe, expect } from "vitest";
+import { it, describe, expect, afterEach } from "vitest";
 import { useExtension } from "./useExtension";
-import { extensionPoint } from "@masonmesh/core";
-import { render, screen } from "@testing-library/react";
-import { ResolverProvider } from "./useResolver";
+import { cleanup, screen } from "@testing-library/react";
 import React from "react";
-
-const foo = extensionPoint<string>().single("foo");
-foo.bind({
-	extension: "bar",
-});
-
-const bar = extensionPoint<string>().multi("bar");
-bar.bind({
-	extension: "one",
-});
-bar.bind({
-	extension: "two",
-});
-
-const extensionPoints = [foo, bar];
-
-declare module "./types" {
-	interface Register {
-		extensionPoints: typeof extensionPoints;
-	}
-}
+import { renderWithProvider } from "./test-ext";
 
 describe("useExtension", () => {
-	function renderWithProvider(children: React.ReactNode) {
-		render(
-			<ResolverProvider extensionPoints={extensionPoints}>
-				{children}
-			</ResolverProvider>,
-		);
-	}
+	afterEach(cleanup);
 
 	it("should render extension", () => {
 		const Foo = () => {
