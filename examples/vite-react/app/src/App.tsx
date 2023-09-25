@@ -1,14 +1,41 @@
 import { useExtension } from "@masonmesh/react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import { NavBar } from "./NavBar";
+import { Dashboard } from "./Dashboard";
+import { About } from "./About";
+
+function RootLayout() {
+	return (
+		<>
+			<header>
+				<NavBar />
+			</header>
+			<main>
+				<Outlet />
+			</main>
+			<footer>Footer</footer>
+		</>
+	);
+}
 
 export function App() {
 	const routes = useExtension("root.routes");
 	const router = createBrowserRouter([
 		{
 			path: "/",
-			element: <div>Home</div>,
+			element: <RootLayout />,
+			children: [
+				{
+					element: <Dashboard />,
+					index: true,
+				},
+				...routes,
+				{
+					path: "/about",
+					element: <About />
+				}
+			],
 		},
-		...routes,
 	]);
 	return <RouterProvider router={router} />;
 }

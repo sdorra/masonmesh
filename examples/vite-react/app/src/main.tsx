@@ -4,12 +4,15 @@ import { App } from "./App";
 import { ResolverProvider } from "@masonmesh/react";
 import { extensionPoints } from "./ext";
 
+import "./global.css";
+
 const root = document.getElementById("root");
 if (!root) {
 	throw new Error("Root element not found");
 }
 
 export function Root() {
+	// TODO progress indicator would be nice
 	const { isLoading, error } = useModules();
 	if (isLoading) {
 		return <div>Loading...</div>;

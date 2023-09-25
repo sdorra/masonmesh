@@ -1,9 +1,25 @@
-import { extensionPoint } from "@masonmesh/core";
-import { RouteObject } from "react-router-dom";
+import { createPluginRegistry, extensionPoint } from "@masonmesh/core";
+import { NonIndexRouteObject } from "react-router-dom";
+import { FC } from "react";
 
-const rootRoutes = extensionPoint<RouteObject>().multi("root.routes");
+import {} from "@masonmesh/react";
 
-export const extensionPoints = [rootRoutes];
+export const rootRoutes =
+	extensionPoint<NonIndexRouteObject>().multi("root.routes");
+
+export type NavBarItemProps = {
+	location: string;
+};
+
+export const navBarItems =
+	extensionPoint<FC<NavBarItemProps>>().multi("root.navbar.items");
+export const widgets = extensionPoint<FC>().multi("dashboard.widgets");
+
+export const extensionPoints = [rootRoutes, widgets, navBarItems];
+
+export const pluginRegistry = createPluginRegistry(extensionPoints, {
+	autoActivate: true,
+});
 
 declare module "@masonmesh/react" {
 	interface Register {

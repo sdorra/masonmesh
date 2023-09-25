@@ -1,0 +1,11 @@
+{
+  "extends": "@masonmesh/tsconfig/base.json",
+	"compilerOptions": {
+		"lib": ["ES2016"],
+		"jsx": "react-jsx",
+		"module": "ESNext",
+    "target": "es6"
+	},
+  "include": ["src"],
+  "exclude": ["dist", "build", "node_modules"]
+}

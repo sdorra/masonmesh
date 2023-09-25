@@ -1,18 +1,23 @@
 import * as React from "react";
+import * as ReactRouterDom from "react-router-dom";
+import * as JsxRuntime from "react/jsx-runtime";
 import { loadModules } from "@masonmesh/host";
+import * as PluginApi from "./plugin-api";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function modules() {
+	const plugins = await fetch("/plugins.json").then((r) => r.json());
 	await loadModules({
-		modules: [],
+		modules: plugins,
 		moduleNameTransform: (module) => `/plugins/plugin-${module}.js`,
 		staticModules: {
 			react: React,
+			"react/jsx-runtime": JsxRuntime,
+			"react-router-dom": ReactRouterDom,
+			"@masonmesh/example-vite-react": PluginApi,
 		},
 	});
 }
-
-async function fakeModules() {}
 
 // TODO: does it make sense to move the hook to @masonmesh/react?
 export function useModules() {
@@ -20,7 +25,7 @@ export function useModules() {
 	const [error, setError] = React.useState<string | null>(null);
 	React.useEffect(() => {
 		// TODO replace with modules()
-		fakeModules()
+		modules()
 			.catch(setError)
 			.finally(() => setIsLoading(false));
 	}, []);
