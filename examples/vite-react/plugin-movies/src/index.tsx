@@ -1,7 +1,7 @@
 import { definePlugin } from "@masonmesh/example-vite-react";
 import { MoviesRoot } from "./MoviesRoot";
 import { MoviesCountWidget } from "./MoviesCountWidget";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export default definePlugin({
 	name: "movies",
@@ -14,7 +14,7 @@ export default definePlugin({
 		binder.bind("dashboard.widgets", MoviesCountWidget);
 		binder.bind("root.navbar.items", () => (
 			<li>
-				<Link to="/movies">Movies</Link>
+				<NavLink to="/movies">Movies</NavLink>
 			</li>
 		));
 	},

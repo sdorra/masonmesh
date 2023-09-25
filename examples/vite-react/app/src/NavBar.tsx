@@ -1,21 +1,21 @@
 import { ExtensionPoint } from "@masonmesh/react";
-import { Link, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 export function NavBar() {
 	const location = useLocation();
 
 	return (
-		<nav>
+		<nav className="navbar">
 			<ul>
 				<li>
-					<Link to="/">Dashboard</Link>
+					<NavLink to="/">Dashboard</NavLink>
 				</li>
 				<ExtensionPoint
 					id="root.navbar.items"
 					props={{ location: location.pathname }}
 				/>
 				<li>
-					<Link to="/about">About</Link>
+					<NavLink to="/about">About</NavLink>
 				</li>
 			</ul>
 		</nav>

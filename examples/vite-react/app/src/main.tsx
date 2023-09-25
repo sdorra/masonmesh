@@ -4,7 +4,7 @@ import { App } from "./App";
 import { ResolverProvider } from "@masonmesh/react";
 import { extensionPoints } from "./ext";
 
-import "./global.css";
+import "./styles.css";
 
 const root = document.getElementById("root");
 if (!root) {
