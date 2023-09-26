@@ -2,8 +2,6 @@ import { createPluginRegistry, extensionPoint } from "@masonmesh/core";
 import { NonIndexRouteObject } from "react-router-dom";
 import { FC } from "react";
 
-import {} from "@masonmesh/react";
-
 export const rootRoutes =
 	extensionPoint<NonIndexRouteObject>().multi("root.routes");
 
