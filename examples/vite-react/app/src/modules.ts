@@ -23,6 +23,8 @@ async function modules() {
 		},
 	});
 
+	// TODO add stylesheet loading to loadModules or expose a new function
+	// TODO the stylesheet should be removed when the plugin is unloaded
 	Object.values(plugins).forEach((plugin) => {
 		if (plugin.stylesheet) {
 			const link = document.createElement("link");
