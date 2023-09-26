@@ -32,18 +32,17 @@ type Args<
 	TArgs = GetArgs<TExtensionPoint>,
 > = NonEmptyObject<TArgs> extends never ? [] : [TArgs];
 
+type ReturnType<TExtensionPoint> = GetIsMulti<TExtensionPoint> extends true
+	? Array<ComponentType<{}>>
+	: ComponentType<{}> | null;
+
 export function useComponentExtension<
 	TKey extends ComponentKeys,
 	TExtensionPoint extends AnyExtensionPoint = Extract<
 		RegisteredExtensionPoints,
 		{ key: TKey }
 	>,
->(
-	key: TKey,
-	...args: Args<TExtensionPoint>
-): GetIsMulti<TExtensionPoint> extends true
-	? Array<ComponentType<{}>>
-	: ComponentType<{}> | null {
+>(key: TKey, ...args: Args<TExtensionPoint>): ReturnType<TExtensionPoint> {
 	const resolver = useResolver();
 
 	const arg: any = args[0] ?? {};
@@ -69,13 +68,13 @@ export function useComponentExtension<
 		const extArray: Array<FC> = ext.map((Extension) => () => (
 			<Ext ext={Extension} />
 		));
-		return extArray as any;
+		return extArray as ReturnType<TExtensionPoint>;
 	}
 
 	if (ext) {
-		const extComponent = () => <Ext ext={ext} />;
-		return extComponent as any;
+		const extComponent: FC = () => <Ext ext={ext} />;
+		return extComponent as ReturnType<TExtensionPoint>;
 	}
 
-	return null as any;
+	return null as ReturnType<TExtensionPoint>;
 }
