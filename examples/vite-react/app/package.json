@@ -3,13 +3,10 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
-	"main": "lib/plugin-api.js",
-	"types": "lib/plugin-api.d.ts",
+	"types": "src/plugin-api.ts",
 	"scripts": {
 		"dev": "vite",
-		"build:api": "tsup src/plugin-api.ts --dts --format esm --clean --outDir lib",
-		"build:app": "vite build",
-		"build": "pnpm run build:api && pnpm run build:app",
+		"build": "vite build",
 		"preview": "vite preview",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint --ext .ts src"
@@ -35,7 +32,6 @@
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-react-refresh": "^0.4.3",
 		"postcss-nesting": "^12.0.1",
-		"tsup": "^7.2.0",
 		"typescript": "^5.0.2",
 		"vite": "^4.4.5",
 		"vite-plugin-generate-file": "^0.0.4",
