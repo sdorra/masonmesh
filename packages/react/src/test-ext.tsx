@@ -29,6 +29,17 @@ list.bind({
 	extension: () => <li>Three</li>,
 });
 
+const quotes = extensionPoint<() => ReactNode>().multi("quotes");
+quotes.bind({
+	extension: () => <p>One</p>,
+});
+quotes.bind({
+	extension: () => <p>Two</p>,
+});
+quotes.bind({
+	extension: () => <p>Three</p>,
+});
+
 const deleteButton = extensionPoint<
 	() => ReactNode,
 	{ isAdmin: boolean }
@@ -54,6 +65,7 @@ export const extensionPoints = [
 	bar,
 	baz,
 	list,
+	quotes,
 	deleteButton,
 	title,
 	emptySingle,

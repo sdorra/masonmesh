@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { renderWithProvider } from "./test-ext";
-import React from "react";
+import React, { FC, PropsWithChildren } from "react";
 import { ExtensionPoint } from "./ExtensionPoint";
 import { screen, cleanup } from "@testing-library/react";
 
@@ -82,5 +82,41 @@ describe("ExtensionPoint", () => {
 		);
 
 		expect(screen.getByRole("heading")).toHaveTextContent("Fallback");
+	});
+
+	it("should wrap multi extension with IntrinsicElement", () => {
+		renderWithProvider(
+			<ul>
+				<ExtensionPoint id="quotes" wrapper={"li"} />
+			</ul>,
+		);
+
+		const listEntries = screen.getByRole("list").querySelectorAll("li");
+		expect(listEntries.length).toBe(3);
+	});
+
+	it("should wrap multi extension with Component", () => {
+		const Quote: FC<PropsWithChildren> = ({ children }) => <li>{children}</li>;
+
+		renderWithProvider(
+			<ul>
+				<ExtensionPoint id="quotes" wrapper={Quote} />
+			</ul>,
+		);
+
+		const listEntries = screen.getByRole("list").querySelectorAll("li");
+		expect(listEntries.length).toBe(3);
+	});
+
+	it("should not wrap single extension", () => {
+		renderWithProvider(
+			<ul>
+				{/* @ts-expect-error wrapper is only allowed on multi eps */}
+				<ExtensionPoint id="title" wrapper={"li"} />
+			</ul>,
+		);
+
+		const listEntries = screen.getByRole("list").querySelectorAll("li");
+		expect(listEntries.length).toBe(0);
 	});
 });
