@@ -1,0 +1,42 @@
+.movies {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2rem;
+	margin-top: 1rem;
+
+	li {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+
+		overflow: hidden;
+		width: 16rem;
+		border: 2px solid #333;
+		border-radius: 0.5rem;
+
+		img {
+			margin-bottom: 0.5rem;
+			grid-column: span 2;
+			object-fit: cover;
+			width: 100%;
+		}
+
+		h2 {
+			grid-column: span 2;
+			padding: 0.5rem;
+		}
+
+		p {
+			align-self: end;
+			padding: 0.5rem;
+		}
+
+		p:first-of-type {
+			opacity: 0.75;
+		}
+
+		p:last-of-type {
+			opacity: 0.5;
+			text-align: right;
+		}
+	}
+}

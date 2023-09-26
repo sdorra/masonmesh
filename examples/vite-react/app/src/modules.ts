@@ -4,18 +4,32 @@ import * as JsxRuntime from "react/jsx-runtime";
 import { loadModules } from "@masonmesh/host";
 import * as PluginApi from "./plugin-api";
 
+type Plugins = Record<string, {
+	bundle: string;
+	stylesheet?: string | undefined;
+}>;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function modules() {
-	const plugins = await fetch("/plugins.json").then((r) => r.json());
+	const plugins: Plugins = await fetch("/plugins.json").then((r) => r.json());
 	await loadModules({
-		modules: plugins,
-		moduleNameTransform: (module) => `/plugins/plugin-${module}.js`,
+		modules: Object.keys(plugins),
+		moduleNameTransform: (module) => plugins[module].bundle,
 		staticModules: {
 			react: React,
 			"react/jsx-runtime": JsxRuntime,
 			"react-router-dom": ReactRouterDom,
 			"@masonmesh/example-vite-react": PluginApi,
 		},
+	});
+
+	Object.values(plugins).forEach((plugin) => {
+		if (plugin.stylesheet) {
+			const link = document.createElement("link");
+			link.rel = "stylesheet";
+			link.href = plugin.stylesheet;
+			document.head.appendChild(link);
+		}
 	});
 }
 

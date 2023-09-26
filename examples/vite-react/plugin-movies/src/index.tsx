@@ -2,6 +2,7 @@ import { definePlugin } from "@masonmesh/example-vite-react";
 import { MoviesRoot } from "./MoviesRoot";
 import { MoviesCountWidget } from "./MoviesCountWidget";
 import { NavLink } from "react-router-dom";
+import "./styles.css";
 
 export default definePlugin({
 	name: "movies",
