@@ -13,9 +13,7 @@ export default definePlugin({
 		});
 		binder.bind("dashboard.widgets", MoviesCountWidget);
 		binder.bind("root.navbar.items", () => (
-			<li>
-				<NavLink to="/movies">Movies</NavLink>
-			</li>
+			<NavLink to="/movies">Movies</NavLink>
 		));
 	},
 });

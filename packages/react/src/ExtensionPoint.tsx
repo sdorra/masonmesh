@@ -4,38 +4,31 @@
 import {
 	AnyExtensionPoint,
 	GetExtensionType,
+	GetIsMulti,
 	GetKey,
-	GetPredicateParam,
 } from "@masonmesh/core";
-import { RegisteredExtensionPoints } from "./types";
+import {
+	ComponentProps,
+	PredicateParam,
+	RegisteredExtensionPoints,
+} from "./types";
 import React, { ComponentType, ReactNode } from "react";
 import { useResolver } from "./useResolver";
 
-type PredicateParam<TExtensionPoint extends AnyExtensionPoint> =
-	GetPredicateParam<TExtensionPoint> extends undefined
-		? {}
-		: {
-				predicateParam: GetPredicateParam<TExtensionPoint>;
-		  };
-
-type NonEmptyObject<T> = T extends Record<any, never>
-	? never
-	: T extends {}
-	? T
-	: never;
-
-type ComponentProps<TExtensionPoint extends AnyExtensionPoint> =
-	GetExtensionType<TExtensionPoint> extends ComponentType<infer TProps>
-		? NonEmptyObject<TProps> extends never
-			? {}
-			: { props: TProps }
-		: {};
+type MultiProps<TExtensionPoint> = GetIsMulti<TExtensionPoint> extends true
+	? {
+			wrapper?:
+				| ComponentType<{ children: ReactNode }>
+				| keyof JSX.IntrinsicElements;
+	  }
+	: {};
 
 type ExtensionPointProps<TExtensionPoint extends AnyExtensionPoint> = {
 	id: GetKey<TExtensionPoint>;
 	children?: ReactNode;
 } & ComponentProps<TExtensionPoint> &
-	PredicateParam<TExtensionPoint>;
+	PredicateParam<TExtensionPoint> &
+	MultiProps<TExtensionPoint>;
 
 type PropsObject = {
 	[TExtensionPoint in RegisteredExtensionPoints as GetExtensionType<TExtensionPoint> extends ComponentType<any>
@@ -69,6 +62,19 @@ export function ExtensionPoint(props: Props) {
 	if (Array.isArray(ext)) {
 		if (ext.length === 0) {
 			return props.children ?? null;
+		}
+
+		if ("wrapper" in props && props.wrapper) {
+			const Wrapper = props.wrapper;
+			return (
+				<>
+					{ext.map((e, i) => (
+						<Wrapper key={i}>
+							<Ext key={i} ext={e} />
+						</Wrapper>
+					))}
+				</>
+			);
 		}
 
 		return (

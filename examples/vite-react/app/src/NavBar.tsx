@@ -3,7 +3,6 @@ import { NavLink, useLocation } from "react-router-dom";
 
 export function NavBar() {
 	const location = useLocation();
-
 	return (
 		<nav className="navbar">
 			<ul>
@@ -13,6 +12,7 @@ export function NavBar() {
 				<ExtensionPoint
 					id="root.navbar.items"
 					props={{ location: location.pathname }}
+					wrapper={"li"}
 				/>
 				<li>
 					<NavLink to="/about">About</NavLink>
